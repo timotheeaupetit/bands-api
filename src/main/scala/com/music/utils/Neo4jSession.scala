@@ -1,8 +1,6 @@
-package com.music
+package com.music.utils
 
 import org.neo4j.driver.v1.{Driver, GraphDatabase, Session}
-
-import scala.util.Properties
 
 trait Neo4jSession {
 

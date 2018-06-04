@@ -1,4 +1,4 @@
-package com.music
+package com.music.utils
 
 import java.nio.file.{FileSystem, FileSystems, Path}
 import java.util.StringTokenizer
@@ -6,6 +6,7 @@ import java.util.StringTokenizer
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import cats.syntax.cartesian._
 import cats.{Monoid, Semigroup, SemigroupK, Show, Traverse}
+import com.music.utils.EnvironmentVariables._
 
 import scala.util.{Properties, Success, Try}
 
@@ -112,59 +113,57 @@ trait EnvironmentVariables {
   case class ParsingError(environmentVariable: EnvironmentVariable, throwable: Throwable) extends ConfigError
 }
 
-trait Neo4jConfiguration extends EnvironmentVariables {
+trait Neo4jConfiguration {
+  case object NEO4J_DB extends EnvironmentVariable("NEO4J_DB")
   case object NEO4J_HOST extends EnvironmentVariable("NEO4J_HOST")
   case object NEO4J_PORT extends EnvironmentVariable("NEO4J_PORT")
   case object NEO4J_USER extends EnvironmentVariable("NEO4J_USER")
   case object NEO4J_PASSWORD extends EnvironmentVariable("NEO4J_PASSWORD")
 
-  case class Neo4jConfig(host: String,
-                         port: Int,
-                         user: Option[String],
-                         password: Option[String])
+  case class Neo4jConfig(db: String, host: String, port: Int, user: Option[String], password: Option[String])
 
   def fNeo4jConfig: ValidatedNel[ConfigError, Neo4jConfig] = {
-    (require[String](NEO4J_HOST)
+    (require[String](NEO4J_DB)
+      |@| require[String](NEO4J_HOST)
       |@| require[Int](NEO4J_PORT)
       |@| option[String](NEO4J_USER)
       |@| option[String](NEO4J_PASSWORD)).map(Neo4jConfig)
   }
 }
 
-trait ApplicationConfiguration extends EnvironmentVariables {
+trait ApplicationConfiguration {
   case object APP_HOME extends EnvironmentVariable("APP_HOME")
   case object PORT extends EnvironmentVariable("PORT")
   case object APPLICATION extends EnvironmentVariable("APPLICATION")
   case object ENV_NAME extends EnvironmentVariable("ENV_NAME")
 
-  case class ApplicationConfig(application: String, env: String, port: Int, app_home: String)
+  case class AppConfig(application: String, env: String, port: Int, app_home: String)
 
-  def fApplicationConfig: ValidationResult[ApplicationConfig] = {
+  def fApplicationConfig: ValidatedNel[ConfigError, AppConfig] = {
     (require[String](APPLICATION)
       |@| require[String](ENV_NAME)
       |@| require[Int](PORT)
-      |@| require[String](APP_HOME)).map(ApplicationConfig)
+      |@| require[String](APP_HOME)).map(AppConfig)
   }
 }
 
-trait Configuration extends Neo4jConfiguration with ApplicationConfiguration {
+trait ProjectConfiguration extends ApplicationConfiguration with Neo4jConfiguration {
 
-  case class config(applicationConfiguration: ApplicationConfig,
-                    cassandraConfig: Neo4jConfig)
+  case class ProjectConfig(appConfig: AppConfig, neo4jConfig: Neo4jConfig)
 
-  def configuration(): ValidationResult[config] = {
-    configuration(FileSystems.getDefault)
+  def projectConfiguration(): ValidationResult[ProjectConfig] = {
+    projectConfiguration(FileSystems.getDefault)
   }
 
-  def configuration(fs: FileSystem): ValidationResult[config] = {
+  def projectConfiguration(fs: FileSystem): ValidationResult[ProjectConfig] = {
     implicit val pathParseConfig: ParseConfig[Path] = new ParseConfig[Path] {
       def apply(str: String): Try[Path] = Try { fs.getPath(str) }
     }
 
-    (fApplicationConfig |@| fNeo4jConfig).map(config)
+    (fApplicationConfig |@| fNeo4jConfig).map(ProjectConfig)
   }
 }
 
-object Configuration extends Configuration
+object ProjectConfiguration extends ProjectConfiguration
 
 object EnvironmentVariables extends EnvironmentVariables
