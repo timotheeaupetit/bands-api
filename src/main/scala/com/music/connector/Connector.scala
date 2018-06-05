@@ -2,8 +2,9 @@ package com.music.connector
 
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.{HttpApp, Route}
+import com.music.model.entities.queries.PersonQueries
 import com.music.utils.ProjectConfiguration.ProjectConfig
-import com.music.utils.SwaggerRoute
+import com.music.utils.{Neo4jManager, SwaggerRoute}
 
 class Connector(projectConfig: ProjectConfig) extends HttpApp {
 
@@ -11,6 +12,9 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
 //  implicit val materializer: ActorMaterializer = ActorMaterializer()
 //
 //  val log = Logging(system, this.getClass)
+
+  private val neo4jManager = new Neo4jManager(projectConfig.neo4jConfig)
+  val personQueries = new PersonQueries(neo4jManager.session)
 
   val routes: Route =
     pathPrefix("persons") {
