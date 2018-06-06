@@ -1,6 +1,6 @@
-package com.music.utils
+package com.music.api.utils
 
-import com.music.utils.ProjectConfiguration.Neo4jConfig
+import com.music.api.utils.ProjectConfiguration.Neo4jConfig
 import org.neo4j.driver.v1._
 
 class Neo4jManager(configuration: Neo4jConfig) {

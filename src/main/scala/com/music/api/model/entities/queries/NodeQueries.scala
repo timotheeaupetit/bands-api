@@ -1,4 +1,4 @@
-package com.music.model.entities.queries
+package com.music.api.model.entities.queries
 
 trait NodeQueries[T] {
   def findAll(): List[T]

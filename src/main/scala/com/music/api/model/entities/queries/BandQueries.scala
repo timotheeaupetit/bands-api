@@ -1,6 +1,6 @@
-package com.music.model.entities.queries
+package com.music.api.model.entities.queries
 
-import com.music.model.entities.Band
+import com.music.api.model.entities.Band
 
 class BandQueries extends NodeQueries[Band] {
 

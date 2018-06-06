@@ -1,8 +1,8 @@
 package com.music
 
-import com.music.connector.Connector
-import com.music.utils.ProjectConfiguration
-import com.music.utils.ProjectConfiguration._
+import com.music.api.connector.Connector
+import com.music.api.utils.ProjectConfiguration
+import com.music.api.utils.ProjectConfiguration._
 
 object MainApplication extends App {
   ProjectConfiguration

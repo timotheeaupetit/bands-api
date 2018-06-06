@@ -1,10 +1,10 @@
-package com.music.connector
+package com.music.api.connector
 
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.{HttpApp, Route}
-import com.music.model.entities.queries.PersonQueries
-import com.music.utils.ProjectConfiguration.ProjectConfig
-import com.music.utils.{Neo4jManager, SwaggerRoute}
+import com.music.api.model.entities.queries.PersonQueries
+import com.music.api.utils.ProjectConfiguration.ProjectConfig
+import com.music.api.utils.{Neo4jManager, SwaggerRoute}
 
 class Connector(projectConfig: ProjectConfig) extends HttpApp {
 

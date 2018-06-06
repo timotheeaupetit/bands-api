@@ -1,4 +1,4 @@
-package com.music.model.entities
+package com.music.api.model.entities
 
 case class Person(id: Option[String],
                   full_name: String,

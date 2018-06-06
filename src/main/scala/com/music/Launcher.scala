@@ -3,8 +3,8 @@ package com.music
 import akka.event.Logging
 import akka.event.Logging.Warning
 import cats.data.NonEmptyList
-import com.music.utils.EnvironmentVariables
-import com.music.utils.EnvironmentVariables.ConfigError
+import com.music.api.utils.EnvironmentVariables
+import com.music.api.utils.EnvironmentVariables.ConfigError
 
 object Launcher {
 

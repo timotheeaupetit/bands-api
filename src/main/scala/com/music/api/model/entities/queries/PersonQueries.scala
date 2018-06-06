@@ -1,6 +1,6 @@
-package com.music.model.entities.queries
+package com.music.api.model.entities.queries
 
-import com.music.model.entities.Person
+import com.music.api.model.entities.Person
 import org.neo4j.driver.v1.Session
 
 class PersonQueries(session: Session) extends NodeQueries[Person] {

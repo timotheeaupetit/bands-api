@@ -1,4 +1,4 @@
-package com.music.utils
+package com.music.api.utils
 
 import akka.http.scaladsl.model.StatusCodes.PermanentRedirect
 import akka.http.scaladsl.model.Uri
