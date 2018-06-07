@@ -1,6 +1,6 @@
 package com.music.api.model.entities.queries
 
-trait NodeQueries[T] {
+abstract class NodeQueries[T] {
   def findAll(): List[T]
   def find(id: String): T
   def delete(id: String): Unit

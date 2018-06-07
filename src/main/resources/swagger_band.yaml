@@ -2,12 +2,16 @@ openapi: '3.0.1'
 info:
   title: Bands API
   version: "0.0.1"
+
 schemes:
-  - https
-  - http
+- https
+- http
+
 basePath: /
+
 produces:
-  - application/json
+- application/json
+
 tags:
 - name: Albums
   description: Group of actions regarding albums
@@ -98,10 +102,10 @@ paths:
 
   /bands/{id}:
     parameters:
-      - name: id
-        in: path
-        required: true
-        description: Id of band to use
+    - name: id
+      in: path
+      required: true
+      description: Id of band to use
     get:
       tags:
       - Bands
@@ -176,10 +180,10 @@ paths:
 
   /albums/{id}:
     parameters:
-      - name: id
-        in: path
-        required: true
-        description: Id of album to use
+    - name: id
+      in: path
+      required: true
+      description: Id of album to use
     get:
       tags:
         - Albums
@@ -196,7 +200,7 @@ paths:
           description: Internal server error
     put:
       tags:
-        - Albums
+      - Albums
       summary: Update the album by its Id
       requestBody:
         content:
@@ -212,7 +216,7 @@ paths:
           description: Internal server error
     delete:
       tags:
-        - Albums
+      - Albums
       summary: Delete the album by its Id
       responses:
         '204':
@@ -225,7 +229,7 @@ paths:
   /albums:
     get:
       tags:
-        - Albums
+      - Albums
       summary: Get a list of all the albums
       responses:
         '200':
@@ -239,7 +243,7 @@ paths:
           description: Internal server error
     post:
       tags:
-        - Albums
+      - Albums
       summary: Create a new album
       requestBody:
         content:
@@ -300,13 +304,13 @@ components:
         id:
           $ref: '#components/schemas/Id'
         full_name:
-          description: Name of the person (ex: First name middle name last name)
+          description: Name of the person (i.e. "John Doe Smith")
           type: string
         first_name:
-          description: First name of the person
+          description: First name of the person (i.e. "John")
           type: string
         last_name:
-          description: Last name of the person
+          description: Last name of the person(i.e. "Smith")
           type: string
         aka:
           type: string
