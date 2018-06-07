@@ -12,6 +12,7 @@ lazy val root = (project in file("."))
   .settings(libraryDependencies ++= Seq(
     "com.beachape" %% "enumeratum" % "1.5.12",
     "com.typesafe.akka" %% "akka-http" % "10.1.1",
+    "de.heikoseeberger" %% "akka-http-circe" % "1.18.0",
     "org.typelevel" %% "cats-core" % "0.9.0",
     "org.neo4j.driver" % "neo4j-java-driver" % "1.6.1",
     "org.webjars" % "swagger-ui" % "3.9.2",

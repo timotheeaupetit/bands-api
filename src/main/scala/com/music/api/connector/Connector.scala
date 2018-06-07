@@ -1,26 +1,29 @@
 package com.music.api.connector
 
+import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.{HttpApp, Route}
 import com.music.api.model.entities.queries.PersonQueries
 import com.music.api.utils.ProjectConfiguration.ProjectConfig
 import com.music.api.utils.{Neo4jManager, SwaggerRoute}
+import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+import io.circe._
+import io.circe.generic.auto._
+import io.circe.syntax._
 
 class Connector(projectConfig: ProjectConfig) extends HttpApp {
 
-//  implicit val system: ActorSystem = ActorSystem("Sonemic")
-//  implicit val materializer: ActorMaterializer = ActorMaterializer()
-//
-//  val log = Logging(system, this.getClass)
-
   private val neo4jManager = new Neo4jManager(projectConfig.neo4jConfig)
-  val personQueries = new PersonQueries(neo4jManager.session)
+  private val personQueries = new PersonQueries(neo4jManager.session)
 
   val routes: Route =
     pathPrefix("persons") {
       pathEnd {
         get {
-          complete(OK)
+          val response = personQueries.findAll().asJson
+          complete {
+            ToResponseMarshallable(response)
+          }
         } ~
           post {
             complete(Created)
