@@ -1,16 +1,19 @@
 package com.music.api.model.entities.queries
 
-import com.music.api.model.entities.Band
+import com.music.api.model.entities.types.Band
+import org.neo4j.driver.v1.Record
 
 class BandQueries extends NodeQueries[Band] {
 
-  override def findAll(): List[Band] = ???
+  final override def findAll(): List[Band] = ???
 
-  override def find(id: String): Band = ???
+  final override def find(id: String): Band = ???
 
-  override def delete(id: String): Unit = ???
+  final override def delete(id: String): Unit = ???
 
-  override def create(t: Band): Unit = ???
+  final override def create(band: Band): Band = ???
 
-  override def update(t: Band): Unit = ???
+  final override def update(band: Band): Band = ???
+
+  final override protected def buildFrom(record: Record): Band = ???
 }

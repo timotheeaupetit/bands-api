@@ -1,4 +1,4 @@
-package com.music.api.model.entities
+package com.music.api.model.entities.types
 
 case class Band(id: Option[String],
                 name: String,
