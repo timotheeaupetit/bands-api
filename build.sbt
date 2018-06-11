@@ -11,9 +11,24 @@ lazy val root = (project in file("."))
   .settings(parallelExecution := false)
   .settings(libraryDependencies ++= Seq(
     "com.beachape" %% "enumeratum" % "1.5.12",
-    "org.specs2" %% "specs2-core" % "4.0.3" % Test,
-    "org.neo4j.driver" % "neo4j-java-driver" % "1.6.1"
+    "com.typesafe.akka" %% "akka-http" % "10.1.1",
+    "de.heikoseeberger" %% "akka-http-circe" % "1.18.0",
+    "org.typelevel" %% "cats-core" % "0.9.0",
+    "org.neo4j.driver" % "neo4j-java-driver" % "1.6.1",
+    "org.webjars" % "swagger-ui" % "3.9.2",
+    "org.webjars" % "webjars-locator" % "0.32-1",
+    "org.specs2" %% "specs2-core" % "4.0.3" % Test
   ))
+  .settings(libraryDependencies ++= Seq(
+    "com.typesafe.akka" %% "akka-actor",
+    "com.typesafe.akka" %% "akka-stream"
+  ).map(_ % "2.5.9"))
+  .settings(libraryDependencies ++= Seq(
+    "io.circe" %% "circe-core",
+    "io.circe" %% "circe-generic",
+    "io.circe" %% "circe-parser",
+    "io.circe" %% "circe-java8"
+  ).map(_ % "0.8.0"))
   .settings(
     scalacOptions ++= Seq("-deprecation", "-feature"),
     scalacOptions in Test ++= Seq("-Yrangepos")
