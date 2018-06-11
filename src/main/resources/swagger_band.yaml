@@ -42,22 +42,6 @@ paths:
           description: Person not found
         '500':
           description: Internal server error
-    put:
-      tags:
-      - Persons
-      summary: Update the person by its Id
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Person'
-      responses:
-        '200':
-          description: Person updated
-        '404':
-          description: Person not found
-        '500':
-          description: Internal server error
     delete:
       tags:
       - Persons
@@ -99,6 +83,20 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Person'
+    put:
+      tags:
+      - Persons
+      summary: Update a person
+      responses:
+        '200':
+          description: Person updated
+        '500':
+          description: Internal server error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
 
   /bands/{id}:
     parameters:
@@ -116,22 +114,6 @@ paths:
           content:
             schema:
               $ref: '#components/schemas/Band'
-        '404':
-          description: Band not found
-        '500':
-          description: Internal server error
-    put:
-      tags:
-      - Bands
-      summary: Update the band by its Id
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Band'
-      responses:
-        '200':
-          description: Band updated
         '404':
           description: Band not found
         '500':
@@ -177,6 +159,22 @@ paths:
           description: Created
         '500':
           description: Internal server error
+    put:
+      tags:
+      - Bands
+      summary: Update the band by its Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Band'
+      responses:
+        '200':
+          description: Band updated
+        '404':
+          description: Band not found
+        '500':
+          description: Internal server error
 
   /albums/{id}:
     parameters:
@@ -194,22 +192,6 @@ paths:
           content:
             schema:
               $ref: '#components/schemas/Album'
-        '404':
-          description: Album not found
-        '500':
-          description: Internal server error
-    put:
-      tags:
-      - Albums
-      summary: Update the album by its Id
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Album'
-      responses:
-        '200':
-          description: Album updated
         '404':
           description: Album not found
         '500':
@@ -255,6 +237,22 @@ paths:
           description: Created
         '500':
           description: Internal server error
+    put:
+      tags:
+      - Albums
+      summary: Update the album by its Id
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Album'
+      responses:
+        '200':
+          description: Album updated
+        '404':
+          description: Album not found
+        '500':
+          description: Internal server error
 
 components:
   schemas:
@@ -262,7 +260,7 @@ components:
       type: object
       properties:
         id:
-          $ref: '#components/schemas/Id'
+          $ref: '#components/schemas/uuid'
         name:
           description: Name of the album
           type: string
@@ -277,7 +275,7 @@ components:
       type: object
       properties:
         id:
-          $ref: '#components/schemas/Id'
+          $ref: '#components/schemas/uuid'
         name:
           description: Name of the band
           type: string
@@ -301,8 +299,8 @@ components:
     Person:
       type: object
       properties:
-        id:
-          $ref: '#components/schemas/Id'
+        uuid:
+          $ref: '#components/schemas/uuid'
         full_name:
           description: Name of the person (i.e. "John Doe Smith")
           type: string
@@ -315,14 +313,14 @@ components:
         aka:
           type: string
           description: Nickname, or alternative names
-        dob:
+        born:
           type: string
           format: full-date
           description: Date of birth (yyyy-MM-dd)
       required:
       - full_name
 
-    Id:
+    uuid:
       description: Unique identifier
       type: string
       format: uuid

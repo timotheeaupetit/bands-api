@@ -1,3 +1,3 @@
 package com.music.api.model.entities.types
 
-case class Album(id: Option[String], name: String, releaseDate: Option[String])
+case class Album(uuid: Option[String], name: String, releaseDate: Option[String])

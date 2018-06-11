@@ -25,21 +25,26 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
         } ~
           post {
             entity(as[Person]) { newPerson =>
-              val response = personQueries.create(newPerson).asJson
+              val response = personQueries.save(newPerson).asJson
+              complete(ToResponseMarshallable(response))
+            }
+          } ~
+          put {
+            entity(as[Person]) { person =>
+              val response = personQueries.save(person).asJson
               complete(ToResponseMarshallable(response))
             }
           }
       } ~
-        path(Segment) { personId =>
+        path(Segment) { strId =>
+          val personId = strId.trim
           get {
-            val response = personQueries.find(personId).asJson
+            val response = personQueries.findById(personId).asJson
             complete(ToResponseMarshallable(response))
           } ~
-            put {
-              complete(OK)
-            } ~
             delete {
-              complete(NoContent)
+              val response = personQueries.delete(personId).asJson
+              complete(ToResponseMarshallable(response))
             }
         }
     } ~
@@ -50,15 +55,16 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
           } ~
             post {
               complete(Created)
+            } ~
+            put {
+              complete(OK)
             }
         } ~
-          path(Segment) { bandId =>
+          path(Segment) { strId =>
+            val bandId = strId.trim
             get {
               complete(OK)
             } ~
-              put {
-                complete(OK)
-              } ~
               delete {
                 complete(NoContent)
               }
@@ -71,15 +77,16 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
           } ~
             post {
               complete(Created)
+            } ~
+            put {
+              complete(OK)
             }
         } ~
-          path(Segment) { albumId =>
+          path(Segment) { strId =>
+            val albumId = strId.trim
             get {
               complete(OK)
             } ~
-              put {
-                complete(OK)
-              } ~
               delete {
                 complete(NoContent)
               }
