@@ -3,7 +3,7 @@ package com.music.api.connector
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.{HttpApp, Route}
-import com.music.api.model.entities.queries.PersonQueries
+import com.music.api.model.entities.queries.{BandQueries, PersonQueries}
 import com.music.api.model.entities.types._
 import com.music.api.utils.ProjectConfiguration.ProjectConfig
 import com.music.api.utils.{Neo4jManager, SwaggerRoute}
@@ -15,6 +15,7 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
 
   private val neo4jManager = new Neo4jManager(projectConfig.neo4jConfig)
   private val personQueries = new PersonQueries(neo4jManager.session)
+  private val bandQueries = new BandQueries(neo4jManager.session)
 
   val routes: Route =
     pathPrefix("persons") {
@@ -51,22 +52,31 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
       pathPrefix("bands") {
         pathEnd {
           get {
-            complete(OK)
+            val response = bandQueries.findAll().asJson
+            complete(OK, ToResponseMarshallable(response))
           } ~
             post {
-              complete(Created)
+              entity(as[Band]) { newBand =>
+                val response = bandQueries.save(newBand).asJson
+                complete(Created, ToResponseMarshallable(response))
+              }
             } ~
             put {
-              complete(OK)
+              entity(as[Band]) { band =>
+                val response = bandQueries.save(band).asJson
+                complete(OK, ToResponseMarshallable(response))
+              }
             }
         } ~
           path(Segment) { strId =>
             val bandId = strId.trim
             get {
-              complete(OK)
+              val response = bandQueries.findById(bandId).asJson
+              complete(OK, ToResponseMarshallable(response))
             } ~
               delete {
-                complete(NoContent)
+                val response = bandQueries.delete(bandId).asJson
+                complete(NoContent, ToResponseMarshallable(response))
               }
           }
       } ~

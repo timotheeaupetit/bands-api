@@ -61,9 +61,9 @@ class PersonQueries(session: Session) extends NodeQueries[Person] {
   final override def save(person: Person): Person = {
     val maybePerson = person.uuid.flatMap(findById)
     val MERGE =
-      """MERGE (p: Person {uuid: $uuid, full_name: $fullName})
-        |ON CREATE SET p.first_name = $firstName, p.last_name =$lastName, p.aka = $aka, p.born = $born
-        |ON MATCH SET p.first_name = $firstName, p.last_name =$lastName, p.aka = $aka, p.born = $born
+      """MERGE (p:Person {uuid: $uuid, full_name: $fullName})
+        |ON CREATE SET p.first_name = $firstName, p.last_name = $lastName, p.aka = $aka, p.born = $born
+        |ON MATCH SET p.first_name = $firstName, p.last_name = $lastName, p.aka = $aka, p.born = $born
         |RETURN p
       """.stripMargin
 
@@ -100,7 +100,8 @@ class PersonQueries(session: Session) extends NodeQueries[Person] {
         "aka",
         after.aka.getOrElse(person.aka.getOrElse("null")),
         "born",
-        after.born.getOrElse(person.born.getOrElse("null")))
+        after.born.getOrElse(person.born.getOrElse("null"))
+      )
     case None =>
       val uuid = UUID.randomUUID().toString
       parameters(
