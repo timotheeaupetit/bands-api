@@ -9,7 +9,7 @@ import org.neo4j.driver.v1.{Record, Session, Value}
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-class PersonQueries(session: Session) extends NodeQueries[Person] {
+class PersonQueries(implicit session: Session) extends NodeQueries[Person] {
   final override def findAll(): List[Person] = {
     val FIND_ALL =
       """MATCH (p:Person)

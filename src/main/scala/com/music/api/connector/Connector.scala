@@ -3,37 +3,41 @@ package com.music.api.connector
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.{HttpApp, Route}
-import com.music.api.model.entities.queries.{BandQueries, PersonQueries}
+import com.music.api.model.entities.queries.{AlbumQueries, BandQueries, PersonQueries}
 import com.music.api.model.entities.types._
 import com.music.api.utils.ProjectConfiguration.ProjectConfig
 import com.music.api.utils.{Neo4jManager, SwaggerRoute}
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import io.circe.generic.auto._
 import io.circe.syntax._
+import org.neo4j.driver.v1.Session
 
 class Connector(projectConfig: ProjectConfig) extends HttpApp {
 
   private val neo4jManager = new Neo4jManager(projectConfig.neo4jConfig)
-  private val personQueries = new PersonQueries(neo4jManager.session)
-  private val bandQueries = new BandQueries(neo4jManager.session)
+
+  implicit val neo4jSession: Session = neo4jManager.session
+  private val personQueries = new PersonQueries()
+  private val bandQueries = new BandQueries()
+  private val albumQueries = new AlbumQueries()
 
   val routes: Route =
     pathPrefix("persons") {
       pathEnd {
         get {
           val response = personQueries.findAll().asJson
-          complete(ToResponseMarshallable(response))
+          complete(OK, ToResponseMarshallable(response))
         } ~
           post {
             entity(as[Person]) { newPerson =>
               val response = personQueries.save(newPerson).asJson
-              complete(ToResponseMarshallable(response))
+              complete(Created, ToResponseMarshallable(response))
             }
           } ~
           put {
             entity(as[Person]) { person =>
               val response = personQueries.save(person).asJson
-              complete(ToResponseMarshallable(response))
+              complete(OK, ToResponseMarshallable(response))
             }
           }
       } ~
@@ -41,11 +45,11 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
           val personId = strId.trim
           get {
             val response = personQueries.findById(personId).asJson
-            complete(ToResponseMarshallable(response))
+            complete(OK, ToResponseMarshallable(response))
           } ~
             delete {
               val response = personQueries.delete(personId).asJson
-              complete(ToResponseMarshallable(response))
+              complete(NoContent, ToResponseMarshallable(response))
             }
         }
     } ~
@@ -83,22 +87,31 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
       pathPrefix("albums") {
         pathEnd {
           get {
-            complete(OK)
+            val response = albumQueries.findAll().asJson
+            complete(OK, ToResponseMarshallable(response))
           } ~
             post {
-              complete(Created)
+              entity(as[Album]) { newAlbum =>
+                val response = albumQueries.save(newAlbum).asJson
+                complete(Created, ToResponseMarshallable(response))
+              }
             } ~
             put {
-              complete(OK)
+              entity(as[Album]) { album =>
+                val response = albumQueries.save(album).asJson
+                complete(OK, ToResponseMarshallable(response))
+              }
             }
         } ~
           path(Segment) { strId =>
             val albumId = strId.trim
             get {
-              complete(OK)
+              val response = albumQueries.findById(albumId).asJson
+              complete(OK, ToResponseMarshallable(response))
             } ~
               delete {
-                complete(NoContent)
+                val response = albumQueries.delete(albumId).asJson
+                complete(NoContent, ToResponseMarshallable(response))
               }
           }
       } ~ SwaggerRoute.getSwaggerRoute("swagger_band.yaml")

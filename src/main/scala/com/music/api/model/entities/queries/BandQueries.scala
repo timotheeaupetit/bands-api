@@ -9,7 +9,7 @@ import org.neo4j.driver.v1.{Record, Session, Value}
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-class BandQueries(session: Session) extends NodeQueries[Band] {
+class BandQueries(implicit session: Session) extends NodeQueries[Band] {
 
   final override def findAll(): List[Band] = {
     val FIND_ALL =
@@ -60,7 +60,7 @@ class BandQueries(session: Session) extends NodeQueries[Band] {
   }
 
   final override def save(band: Band): Band = {
-    val maybePerson = band.uuid.flatMap(findById)
+    val maybeBand = band.uuid.flatMap(findById)
     val MERGE =
       """MERGE (b:Band {uuid: $uuid, name: $name})
         |ON CREATE SET b.formed = $formed, b.disbanded = $disbanded, b.aka = $aka, b.country = $country
@@ -68,7 +68,7 @@ class BandQueries(session: Session) extends NodeQueries[Band] {
         |RETURN b
       """.stripMargin
 
-    val params = setParams(maybePerson, band)
+    val params = setParams(maybeBand, band)
 
     val result = session.run(MERGE, params)
 
