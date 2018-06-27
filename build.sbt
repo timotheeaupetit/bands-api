@@ -6,29 +6,38 @@ lazy val commonSettings = Seq(
   scalaVersion := "2.12.6"
 )
 
+val akkaVersion = "2.5.9"
+val akkaHttpVersion = "10.1.1"
+val circeVersion = "0.8.0"
+val specs2Version = "4.0.4"
+
 lazy val root = (project in file("."))
   .settings(commonSettings: _*)
   .settings(parallelExecution := false)
   .settings(libraryDependencies ++= Seq(
     "com.beachape" %% "enumeratum" % "1.5.12",
-    "com.typesafe.akka" %% "akka-http" % "10.1.1",
+    "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
     "de.heikoseeberger" %% "akka-http-circe" % "1.18.0",
     "org.typelevel" %% "cats-core" % "0.9.0",
     "org.neo4j.driver" % "neo4j-java-driver" % "1.6.1",
     "org.webjars" % "swagger-ui" % "3.9.2",
     "org.webjars" % "webjars-locator" % "0.32-1",
-    "org.specs2" %% "specs2-core" % "4.0.3" % Test
+    "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test
   ))
+  .settings(libraryDependencies ++= Seq(
+    "org.specs2" %% "specs2-core",
+    "org.specs2" %% "specs2-mock"
+  ).map(_ % specs2Version % Test))
   .settings(libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-actor",
     "com.typesafe.akka" %% "akka-stream"
-  ).map(_ % "2.5.9"))
+  ).map(_ % akkaVersion))
   .settings(libraryDependencies ++= Seq(
     "io.circe" %% "circe-core",
     "io.circe" %% "circe-generic",
     "io.circe" %% "circe-parser",
     "io.circe" %% "circe-java8"
-  ).map(_ % "0.8.0"))
+  ).map(_ % circeVersion))
   .settings(
     scalacOptions ++= Seq("-deprecation", "-feature"),
     scalacOptions in Test ++= Seq("-Yrangepos")
