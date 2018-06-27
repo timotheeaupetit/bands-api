@@ -38,7 +38,6 @@ lazy val root = (project in file("."))
     "io.circe" %% "circe-parser",
     "io.circe" %% "circe-java8"
   ).map(_ % circeVersion))
-  .settings(
-    scalacOptions ++= Seq("-deprecation", "-feature"),
-    scalacOptions in Test ++= Seq("-Yrangepos")
-  )
+  .enablePlugins(JavaAppPackaging)
+
+packageName in Universal := "bands-api"
