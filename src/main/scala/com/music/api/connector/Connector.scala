@@ -26,18 +26,18 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
       pathEnd {
         get {
           val response = personQueries.findAll().asJson
-          complete(OK, ToResponseMarshallable(response))
+          complete(ToResponseMarshallable(response))
         } ~
           post {
             entity(as[Person]) { newPerson =>
               val response = personQueries.save(newPerson).asJson
-              complete(Created, ToResponseMarshallable(response))
+              complete(ToResponseMarshallable(response))
             }
           } ~
           put {
             entity(as[Person]) { person =>
               val response = personQueries.save(person).asJson
-              complete(OK, ToResponseMarshallable(response))
+              complete(ToResponseMarshallable(response))
             }
           }
       } ~
@@ -45,11 +45,11 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
           val personId = strId.trim
           get {
             val response = personQueries.findById(personId).asJson
-            complete(OK, ToResponseMarshallable(response))
+            complete(ToResponseMarshallable(response))
           } ~
             delete {
               val response = personQueries.delete(personId).asJson
-              complete(NoContent, ToResponseMarshallable(response))
+              complete(ToResponseMarshallable(response))
             }
         }
     } ~
@@ -57,18 +57,18 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
         pathEnd {
           get {
             val response = bandQueries.findAll().asJson
-            complete(OK, ToResponseMarshallable(response))
+            complete(ToResponseMarshallable(response))
           } ~
             post {
               entity(as[Band]) { newBand =>
                 val response = bandQueries.save(newBand).asJson
-                complete(Created, ToResponseMarshallable(response))
+                complete(ToResponseMarshallable(response))
               }
             } ~
             put {
               entity(as[Band]) { band =>
                 val response = bandQueries.save(band).asJson
-                complete(OK, ToResponseMarshallable(response))
+                complete(ToResponseMarshallable(response))
               }
             }
         } ~
@@ -76,11 +76,11 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
             val bandId = strId.trim
             get {
               val response = bandQueries.findById(bandId).asJson
-              complete(OK, ToResponseMarshallable(response))
+              complete(ToResponseMarshallable(response))
             } ~
               delete {
                 val response = bandQueries.delete(bandId).asJson
-                complete(NoContent, ToResponseMarshallable(response))
+                complete(ToResponseMarshallable(response))
               }
           }
       } ~
@@ -88,18 +88,18 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
         pathEnd {
           get {
             val response = albumQueries.findAll().asJson
-            complete(OK, ToResponseMarshallable(response))
+            complete(ToResponseMarshallable(response))
           } ~
             post {
               entity(as[Album]) { newAlbum =>
                 val response = albumQueries.save(newAlbum).asJson
-                complete(Created, ToResponseMarshallable(response))
+                complete(ToResponseMarshallable(response))
               }
             } ~
             put {
               entity(as[Album]) { album =>
                 val response = albumQueries.save(album).asJson
-                complete(OK, ToResponseMarshallable(response))
+                complete(ToResponseMarshallable(response))
               }
             }
         } ~
@@ -107,11 +107,11 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
             val albumId = strId.trim
             get {
               val response = albumQueries.findById(albumId).asJson
-              complete(OK, ToResponseMarshallable(response))
+              complete(ToResponseMarshallable(response))
             } ~
               delete {
                 val response = albumQueries.delete(albumId).asJson
-                complete(NoContent, ToResponseMarshallable(response))
+                complete(ToResponseMarshallable(response))
               }
           }
       } ~ SwaggerRoute.getSwaggerRoute("swagger_band.yaml")
