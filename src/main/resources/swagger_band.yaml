@@ -3,36 +3,43 @@ info:
   title: Bands API
   version: "0.0.1"
 
-schemes:
-- https
-- http
+servers:
+  - url: '{protocol}://localhost:9000'
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: http
 
-basePath: /
-
+consumes:
+  - application/json
 produces:
-- application/json
+  - application/json
 
 tags:
-- name: Albums
-  description: Group of actions regarding albums
-- name: Bands
-  description: Group of actions regarding bands
-- name: Persons
-  description: Group of actions regarding persons
+  - name: Albums
+    description: Group of actions regarding albums
+  - name: Bands
+    description: Group of actions regarding bands
+  - name: Persons
+    description: Group of actions regarding persons
 
 paths:
-  /persons/{person_id}/bands/{band_id}:
+  /persons/{personId}/bands/{bandId}:
     parameters:
-      - name: person_id
+      - name: personId
         in: path
         description: Id of person to use
         required: true
-        type: string
-      - name: band_id
+        schema:
+          $ref: '#components/schemas/uuid'
+      - name: bandId
         in: path
         description: Id of band to use
         required: true
-        type: string
+        schema:
+          $ref: '#components/schemas/uuid'
     post:
       tags:
         - Persons
@@ -49,30 +56,33 @@ paths:
           description: Person or band not found
         '500':
           description: Internal server error
-  /persons/{id}:
+
+  /persons/{personId}:
     parameters:
-      - name: id
+      - name: personId
         in: path
         description: Id of person to use
         required: true
-        type: string
+        schema:
+          $ref: '#components/schemas/uuid'
     get:
       tags:
-      - Persons
+        - Persons
       summary: Get the person by its Id
       responses:
         '200':
           description: Person found
           content:
-            schema:
-              $ref: '#components/schemas/Person'
+            application/json:
+              schema:
+                $ref: '#components/schemas/Person'
         '404':
           description: Person not found
         '500':
           description: Internal server error
     delete:
       tags:
-      - Persons
+        - Persons
       summary: Delete the person by its Id
       responses:
         '204':
@@ -85,21 +95,22 @@ paths:
   /persons:
     get:
       tags:
-      - Persons
+        - Persons
       summary: Get a list of all the persons
       responses:
         '200':
           description: OK
           content:
-            schema:
-              type: array
-              items:
-                $ref: '#components/schemas/Person'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#components/schemas/Person'
         '500':
           description: Internal server error
     post:
       tags:
-      - Persons
+        - Persons
       summary: Create a new person
       responses:
         '201':
@@ -113,7 +124,7 @@ paths:
               $ref: '#/components/schemas/Person'
     put:
       tags:
-      - Persons
+        - Persons
       summary: Update a person
       responses:
         '200':
@@ -126,29 +137,32 @@ paths:
             schema:
               $ref: '#/components/schemas/Person'
 
-  /bands/{id}:
+  /bands/{bandId}:
     parameters:
-    - name: id
-      in: path
-      required: true
-      description: Id of band to use
+      - name: bandId
+        in: path
+        required: true
+        description: Id of band to use
+        schema:
+          $ref: '#components/schemas/uuid'
     get:
       tags:
-      - Bands
+        - Bands
       summary: Get the band by its Id
       responses:
         '200':
           description: Band found
           content:
-            schema:
-              $ref: '#components/schemas/Band'
+            application/json:
+              schema:
+                $ref: '#components/schemas/Band'
         '404':
           description: Band not found
         '500':
           description: Internal server error
     delete:
       tags:
-      - Bands
+        - Bands
       summary: Delete the band by its Id
       responses:
         '204':
@@ -161,21 +175,22 @@ paths:
   /bands:
     get:
       tags:
-      - Bands
+        - Bands
       summary: Get a list of all the bands
       responses:
         '200':
           description: List of bands
           content:
-            schema:
-              type: array
-              items:
-                $ref: '#components/schemas/Band'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#components/schemas/Band'
         '500':
           description: Internal server error
     post:
       tags:
-      - Bands
+        - Bands
       summary: Create a new band
       requestBody:
         content:
@@ -189,7 +204,7 @@ paths:
           description: Internal server error
     put:
       tags:
-      - Bands
+        - Bands
       summary: Update the band by its Id
       requestBody:
         content:
@@ -204,12 +219,14 @@ paths:
         '500':
           description: Internal server error
 
-  /albums/{id}:
+  /albums/{albumId}:
     parameters:
-    - name: id
-      in: path
-      required: true
-      description: Id of album to use
+      - name: albumId
+        in: path
+        required: true
+        description: Id of album to use
+        schema:
+          $ref: '#components/schemas/uuid'
     get:
       tags:
         - Albums
@@ -218,15 +235,16 @@ paths:
         '200':
           description: Album found
           content:
-            schema:
-              $ref: '#components/schemas/Album'
+            application/json:
+              schema:
+                $ref: '#components/schemas/Album'
         '404':
           description: Album not found
         '500':
           description: Internal server error
     delete:
       tags:
-      - Albums
+        - Albums
       summary: Delete the album by its Id
       responses:
         '204':
@@ -239,21 +257,22 @@ paths:
   /albums:
     get:
       tags:
-      - Albums
+        - Albums
       summary: Get a list of all the albums
       responses:
         '200':
           description: List of albums
           content:
-            schema:
-              type: array
-              items:
-                $ref: '#components/schemas/Album'
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#components/schemas/Album'
         '500':
           description: Internal server error
     post:
       tags:
-      - Albums
+        - Albums
       summary: Create a new album
       requestBody:
         content:
@@ -267,7 +286,7 @@ paths:
           description: Internal server error
     put:
       tags:
-      - Albums
+        - Albums
       summary: Update the album by its Id
       requestBody:
         content:
@@ -297,7 +316,7 @@ components:
           type: string
           format: full-date
       required:
-      - name
+        - name
 
     Band:
       type: object
@@ -307,9 +326,11 @@ components:
         name:
           description: Name of the band
           type: string
+          example: Metallica
         aka:
           description: Alternative names of the band
           type: string
+          example: The Four Horsemen
         country:
           type: string
           description: Country of origin
@@ -322,7 +343,7 @@ components:
           type: string
           format: full-date
       required:
-      - name
+        - name
 
     Person:
       type: object
@@ -330,14 +351,17 @@ components:
         uuid:
           $ref: '#components/schemas/uuid'
         full_name:
-          description: Name of the person (i.e. "John Doe Smith")
+          description: Name of the person
           type: string
+          example: John Smith
         first_name:
-          description: First name of the person (i.e. "John")
+          description: First name of the person
           type: string
+          example: John
         last_name:
-          description: Last name of the person(i.e. "Smith")
+          description: Last name of the person
           type: string
+          example: Smith
         aka:
           type: string
           description: Nickname, or alternative names
@@ -346,7 +370,7 @@ components:
           format: full-date
           description: Date of birth (yyyy-MM-dd)
       required:
-      - full_name
+        - full_name
 
     PlayedIn:
       type: object
@@ -354,6 +378,7 @@ components:
         instruments:
           type: string
           description: List of instruments played by the member in the band
+          example: vocals, guitar, keyboards
         start:
           type: string
           format: full-date
