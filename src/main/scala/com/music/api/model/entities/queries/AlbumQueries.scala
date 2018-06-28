@@ -7,7 +7,6 @@ import org.neo4j.driver.v1.Values.parameters
 import org.neo4j.driver.v1.{Record, Session, Value}
 
 import scala.collection.JavaConverters._
-import scala.util.Try
 
 class AlbumQueries(implicit session: Session) extends NodeQueries[Album] {
 
@@ -20,10 +19,8 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[Album] {
 
     val result = session.run(FIND_ALL)
 
-    result
-      .list[Album](buildFrom)
-      .asScala
-      .toList
+    result.asScala.toList
+      .flatMap(buildFrom)
   }
 
   final override def findById(uuid: String): Option[Album] = {
@@ -34,7 +31,7 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[Album] {
 
     val result = session.run(FIND, parameters("uuid", uuid))
 
-    Try(buildFrom(result.single())).toOption
+    Option(result.single()).flatMap(buildFrom)
   }
 
   final override def findByName(name: String): Option[Album] = {
@@ -45,7 +42,7 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[Album] {
 
     val result = session.run(FIND, parameters("name", name))
 
-    Try(buildFrom(result.single())).toOption
+    Option(result.single()).flatMap(buildFrom)
   }
 
   final override def delete(uuid: String): Option[Album] = {
@@ -56,10 +53,10 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[Album] {
 
     val result = session.run(DELETE, parameters("uuid", uuid))
 
-    Try(buildFrom(result.single())).toOption
+    Option(result.single()).flatMap(buildFrom)
   }
 
-  final override def save(album: Album): Album = {
+  final override def save(album: Album): Option[Album] = {
     val maybeAlbum = album.uuid.flatMap(findById)
     val MERGE =
       """MERGE (a:Album {uuid: $uuid, name: $name})
@@ -72,16 +69,19 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[Album] {
 
     val result = session.run(MERGE, params)
 
-    buildFrom(result.single())
+    Option(result.single()).flatMap(buildFrom)
   }
 
-  final override protected def buildFrom(record: Record): Album = {
-    val node = record.get(0)
-    Album(
-      uuid = Some(node.get("uuid").asString()),
-      name = node.get("name").asString(),
-      releaseDate = Some(node.get("released").asString())
-    )
+  final override protected def buildFrom(record: Record): Option[Album] = {
+    for {
+      node <- Option(record.get(0))
+    } yield {
+      Album(
+        uuid = Some(node.get("uuid").asString()),
+        name = node.get("name").asString(),
+        releaseDate = Some(node.get("released").asString())
+      )
+    }
   }
 
   final override protected def setParams(before: Option[Album], after: Album): Value = before match {

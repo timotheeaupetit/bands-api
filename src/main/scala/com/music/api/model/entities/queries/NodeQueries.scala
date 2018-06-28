@@ -7,7 +7,7 @@ abstract class NodeQueries[T] {
   def findById(id: String): Option[T]
   def findByName(name: String): Option[T]
   def delete(id: String): Option[T]
-  def save(t: T): T
-  protected def buildFrom(record: Record): T
+  def save(t: T): Option[T]
+  protected def buildFrom(record: Record): Option[T]
   protected def setParams(before: Option[T], after: T): Value
 }
