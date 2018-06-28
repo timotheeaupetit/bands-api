@@ -1,4 +1,4 @@
-package com.music.api.model.relationships
+package com.music.api.model.relationships.types
 
 import com.music.api.model.entities.types.{Band, Person}
 
