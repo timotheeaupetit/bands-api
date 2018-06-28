@@ -20,7 +20,7 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[Album] {
     val result = session.run(FIND_ALL)
 
     result.asScala.toList
-      .flatMap(buildFrom)
+      .flatten(buildFrom)
   }
 
   final override def findById(uuid: String): Option[Album] = {

@@ -20,7 +20,7 @@ class BandQueries(implicit session: Session) extends NodeQueries[Band] {
     val result = session.run(FIND_ALL)
 
     result.asScala.toList
-      .flatMap(buildFrom)
+      .flatten(buildFrom)
   }
 
   final override def findById(uuid: String): Option[Band] = {

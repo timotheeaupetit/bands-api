@@ -9,6 +9,7 @@ import org.neo4j.driver.v1.{Record, Session, Value}
 import scala.collection.JavaConverters._
 
 class PersonQueries(implicit session: Session) extends NodeQueries[Person] {
+
   final override def findAll(): List[Person] = {
     val FIND_ALL =
       """MATCH (p:Person)
@@ -19,7 +20,7 @@ class PersonQueries(implicit session: Session) extends NodeQueries[Person] {
     val result = session.run(FIND_ALL)
 
     result.asScala.toList
-      .flatMap(buildFrom)
+      .flatten(buildFrom)
   }
 
   final override def findById(uuid: String): Option[Person] = {
