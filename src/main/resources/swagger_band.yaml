@@ -21,6 +21,34 @@ tags:
   description: Group of actions regarding persons
 
 paths:
+  /persons/{person_id}/bands/{band_id}:
+    parameters:
+      - name: person_id
+        in: path
+        description: Id of person to use
+        required: true
+        type: string
+      - name: band_id
+        in: path
+        description: Id of band to use
+        required: true
+        type: string
+    post:
+      tags:
+        - Persons
+      summary: Create a relationship between a person and a band
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlayedIn'
+      responses:
+        '201':
+          description: Relationship created
+        '404':
+          description: Person or band not found
+        '500':
+          description: Internal server error
   /persons/{id}:
     parameters:
       - name: id
@@ -319,6 +347,21 @@ components:
           description: Date of birth (yyyy-MM-dd)
       required:
       - full_name
+
+    PlayedIn:
+      type: object
+      properties:
+        instruments:
+          type: string
+          description: List of instruments played by the member in the band
+        start:
+          type: string
+          format: full-date
+          description: Date when the member started playing in the band
+        end:
+          type: string
+          format: full-date
+          description: Date when the member stopped playing in the band
 
     uuid:
       description: Unique identifier

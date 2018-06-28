@@ -5,6 +5,8 @@ import akka.http.scaladsl.model.StatusCodes._
 import akka.http.scaladsl.server.{HttpApp, Route}
 import com.music.api.model.entities.queries.{AlbumQueries, BandQueries, PersonQueries}
 import com.music.api.model.entities.types._
+import com.music.api.model.relationships.queries.PlayedInQueries
+import com.music.api.model.relationships.types.PlayedIn
 import com.music.api.utils.ProjectConfiguration.ProjectConfig
 import com.music.api.utils.{Neo4jManager, SwaggerRoute}
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
@@ -17,9 +19,12 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
   private val neo4jManager = new Neo4jManager(projectConfig.neo4jConfig)
 
   implicit val neo4jSession: Session = neo4jManager.session
+
   private val personQueries = new PersonQueries()
   private val bandQueries = new BandQueries()
   private val albumQueries = new AlbumQueries()
+
+  private val playedInQueries = new PlayedInQueries()
 
   val routes: Route =
     pathPrefix("persons") {
@@ -41,15 +46,34 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
             }
           }
       } ~
-        path(Segment) { strId =>
+        pathPrefix(Segment) { strId =>
           val personId = strId.trim
-          get {
-            val response = personQueries.findById(personId).asJson
-            complete(ToResponseMarshallable(response))
-          } ~
-            delete {
-              val response = personQueries.delete(personId).asJson
+          val maybePerson = personQueries.findById(personId)
+          pathEnd {
+            get {
+              val response = maybePerson.asJson
               complete(ToResponseMarshallable(response))
+            } ~
+              delete {
+                val response = personQueries.delete(personId).asJson
+                complete(ToResponseMarshallable(response))
+              }
+          } ~
+            path("bands" / Segment) { strBandId =>
+              val bandId = strBandId.trim
+              val maybeBand = bandQueries.findById(bandId)
+              pathEnd {
+                post {
+                  entity(as[PlayedIn]) { playedIn =>
+                    (maybePerson, maybeBand) match {
+                      case (Some(person), Some(band)) =>
+                        playedInQueries.link(person, band, playedIn)
+                        complete(Created)
+                      case _ => complete(NotFound)
+                    }
+                  }
+                }
+              }
             }
         }
     } ~
