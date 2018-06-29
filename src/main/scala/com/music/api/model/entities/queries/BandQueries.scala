@@ -7,7 +7,6 @@ import org.neo4j.driver.v1.Values.parameters
 import org.neo4j.driver.v1.{Record, Session, Value}
 
 import scala.collection.JavaConverters._
-import scala.util.Try
 
 class BandQueries(implicit session: Session) extends NodeQueries[Band] {
 
@@ -20,10 +19,8 @@ class BandQueries(implicit session: Session) extends NodeQueries[Band] {
 
     val result = session.run(FIND_ALL)
 
-    result
-      .list[Band](buildFrom)
-      .asScala
-      .toList
+    result.asScala.toList
+      .flatten(buildFrom)
   }
 
   final override def findById(uuid: String): Option[Band] = {
@@ -34,7 +31,7 @@ class BandQueries(implicit session: Session) extends NodeQueries[Band] {
 
     val result = session.run(FIND, parameters("uuid", uuid))
 
-    Try(buildFrom(result.single())).toOption
+    Option(result.single()).flatMap(buildFrom)
   }
 
   final override def findByName(name: String): Option[Band] = {
@@ -45,7 +42,7 @@ class BandQueries(implicit session: Session) extends NodeQueries[Band] {
 
     val result = session.run(FIND, parameters("name", name))
 
-    Try(buildFrom(result.single())).toOption
+    Option(result.single()).flatMap(buildFrom)
   }
 
   final override def delete(uuid: String): Option[Band] = {
@@ -56,10 +53,10 @@ class BandQueries(implicit session: Session) extends NodeQueries[Band] {
 
     val result = session.run(DELETE, parameters("uuid", uuid))
 
-    Try(buildFrom(result.single())).toOption
+    Option(result.single()).flatMap(buildFrom)
   }
 
-  final override def save(band: Band): Band = {
+  final override def save(band: Band): Option[Band] = {
     val maybeBand = band.uuid.flatMap(findById)
     val MERGE =
       """MERGE (b:Band {uuid: $uuid, name: $name})
@@ -72,19 +69,22 @@ class BandQueries(implicit session: Session) extends NodeQueries[Band] {
 
     val result = session.run(MERGE, params)
 
-    buildFrom(result.single())
+    Option(result.single()).flatMap(buildFrom)
   }
 
-  final override protected def buildFrom(record: Record): Band = {
-    val node = record.get(0)
-    Band(
-      uuid = Some(node.get("uuid").asString()),
-      name = node.get("name").asString(),
-      aka = Some(node.get("aka").asString()),
-      country = Some(node.get("country").asString()),
-      formed = Some(node.get("formed").asString()),
-      disbanded = Some(node.get("disbanded").asString())
-    )
+  final override protected def buildFrom(record: Record): Option[Band] = {
+    for {
+      node <- Option(record.get(0))
+    } yield {
+      Band(
+        uuid = Some(node.get("uuid").asString()),
+        name = node.get("name").asString(),
+        aka = Some(node.get("aka").asString()),
+        country = Some(node.get("country").asString()),
+        formed = Some(node.get("formed").asString()),
+        disbanded = Some(node.get("disbanded").asString())
+      )
+    }
   }
 
   final override protected def setParams(before: Option[Band], after: Band): Value = before match {

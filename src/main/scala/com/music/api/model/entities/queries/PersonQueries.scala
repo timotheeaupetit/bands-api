@@ -7,9 +7,9 @@ import org.neo4j.driver.v1.Values.parameters
 import org.neo4j.driver.v1.{Record, Session, Value}
 
 import scala.collection.JavaConverters._
-import scala.util.Try
 
 class PersonQueries(implicit session: Session) extends NodeQueries[Person] {
+
   final override def findAll(): List[Person] = {
     val FIND_ALL =
       """MATCH (p:Person)
@@ -19,10 +19,8 @@ class PersonQueries(implicit session: Session) extends NodeQueries[Person] {
 
     val result = session.run(FIND_ALL)
 
-    result
-      .list[Person](buildFrom)
-      .asScala
-      .toList
+    result.asScala.toList
+      .flatten(buildFrom)
   }
 
   final override def findById(uuid: String): Option[Person] = {
@@ -33,7 +31,7 @@ class PersonQueries(implicit session: Session) extends NodeQueries[Person] {
 
     val result = session.run(FIND, parameters("uuid", uuid))
 
-    Try(buildFrom(result.single())).toOption
+    Option(result.single()).flatMap(buildFrom)
   }
 
   final override def findByName(fullName: String): Option[Person] = {
@@ -44,7 +42,7 @@ class PersonQueries(implicit session: Session) extends NodeQueries[Person] {
 
     val result = session.run(FIND, parameters("full_name", fullName))
 
-    Try(buildFrom(result.single())).toOption
+    Option(result.single()).flatMap(buildFrom)
   }
 
   final override def delete(uuid: String): Option[Person] = {
@@ -55,10 +53,10 @@ class PersonQueries(implicit session: Session) extends NodeQueries[Person] {
 
     val result = session.run(DELETE, parameters("uuid", uuid))
 
-    Try(buildFrom(result.single())).toOption
+    Option(result.single()).flatMap(buildFrom)
   }
 
-  final override def save(person: Person): Person = {
+  final override def save(person: Person): Option[Person] = {
     val maybePerson = person.uuid.flatMap(findById)
     val MERGE =
       """MERGE (p:Person {uuid: $uuid, full_name: $fullName})
@@ -71,19 +69,22 @@ class PersonQueries(implicit session: Session) extends NodeQueries[Person] {
 
     val result = session.run(MERGE, params)
 
-    buildFrom(result.single())
+    Option(result.single()).flatMap(buildFrom)
   }
 
-  final override protected def buildFrom(record: Record): Person = {
-    val node = record.get(0)
-    Person(
-      uuid = Some(node.get("uuid").asString()),
-      full_name = node.get("full_name").asString(),
-      first_name = Some(node.get("first_name").asString()),
-      last_name = Some(node.get("last_name").asString()),
-      aka = Some(node.get("aka").asString()),
-      born = Some(node.get("born").asString())
-    )
+  final override protected def buildFrom(record: Record): Option[Person] = {
+    for {
+      node <- Option(record.get(0))
+    } yield {
+      Person(
+        uuid = Some(node.get("uuid").asString()),
+        full_name = node.get("full_name").asString(),
+        first_name = Some(node.get("first_name").asString()),
+        last_name = Some(node.get("last_name").asString()),
+        aka = Some(node.get("aka").asString()),
+        born = Some(node.get("born").asString())
+      )
+    }
   }
 
   final override protected def setParams(before: Option[Person], after: Person): Value = before match {
