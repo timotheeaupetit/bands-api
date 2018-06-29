@@ -13,6 +13,7 @@ object Instrument extends StringEnum[Instrument] {
   case object Bass extends Instrument("bass")
   case object Bassoon extends Instrument("bassoon")
   case object Cello extends Instrument("cello")
+  case object ChapmanStick extends Instrument("Chapman stick")
   case object Clarinet extends Instrument("clarinet")
   case object Didgeridoo extends Instrument("didgeridoo")
   case object DoubleBass extends Instrument("double bass") //contrebasse
@@ -36,6 +37,7 @@ object Instrument extends StringEnum[Instrument] {
   case object Trumpet extends Instrument("trumpet")
   case object Tuba extends Instrument("tuba")
   case object Turntables extends Instrument("turntables") //platines
+  case object Viola extends Instrument("viola")
   case object Violin extends Instrument("violin")
   case object Vocals extends Instrument("vocals")
   case object Xylophone extends Instrument("xylophone")
