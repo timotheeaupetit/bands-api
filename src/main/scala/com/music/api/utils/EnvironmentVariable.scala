@@ -113,6 +113,14 @@ trait EnvironmentVariables {
   case class ParsingError(environmentVariable: EnvironmentVariable, throwable: Throwable) extends ConfigError
 }
 
+trait MiscConfiguration {
+  case object SOURCE_URL extends EnvironmentVariable("SOURCE_URL")
+
+  case class MiscConfig(srcUrl: String)
+
+  def fMiscConfig: ValidatedNel[ConfigError, MiscConfig] = require[String](SOURCE_URL).map(MiscConfig)
+}
+
 trait Neo4jConfiguration {
   case object NEO4J_DB extends EnvironmentVariable("NEO4J_DB")
   case object NEO4J_HOST extends EnvironmentVariable("NEO4J_HOST")
@@ -147,9 +155,9 @@ trait ApplicationConfiguration {
   }
 }
 
-trait ProjectConfiguration extends ApplicationConfiguration with Neo4jConfiguration {
+trait ProjectConfiguration extends ApplicationConfiguration with Neo4jConfiguration with MiscConfiguration {
 
-  case class ProjectConfig(appConfig: AppConfig, neo4jConfig: Neo4jConfig)
+  case class ProjectConfig(appConfig: AppConfig, neo4jConfig: Neo4jConfig, miscConfig: MiscConfig)
 
   def projectConfiguration(): ValidationResult[ProjectConfig] = {
     projectConfiguration(FileSystems.getDefault)
@@ -160,7 +168,7 @@ trait ProjectConfiguration extends ApplicationConfiguration with Neo4jConfigurat
       def apply(str: String): Try[Path] = Try { fs.getPath(str) }
     }
 
-    (fApplicationConfig |@| fNeo4jConfig).map(ProjectConfig)
+    (fApplicationConfig |@| fNeo4jConfig |@| fMiscConfig).map(ProjectConfig)
   }
 }
 
