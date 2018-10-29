@@ -21,17 +21,23 @@ object Instrument extends StringEnum[Instrument] {
   case object Flute extends Instrument("flute")
   case object Guitar extends Instrument("guitar")
   case object Harmonica extends Instrument("harmonica")
+  case object Harmonium extends Instrument("harmonium")
   case object Harp extends Instrument("harp")
   case object Harpsichord extends Instrument("harpsichord") //clavecin
   case object Horn extends Instrument("horn") //cor
   case object HurdyGurdy extends Instrument("hurdy gurdy") //vielle
+  case object Kalimba extends Instrument("kalimba")
   case object Keyboards extends Instrument("keyboards")
+  case object LeadGuitar extends Instrument("lead guitar")
   case object LeadVocals extends Instrument("lead vocals")
   case object Oboe extends Instrument("oboe") //hautbois
   case object Percussion extends Instrument("percussion")
   case object Piano extends Instrument("piano")
+  case object Programming extends Instrument("programming")
+  case object RythmGuitar extends Instrument("rythm guitar")
   case object Samples extends Instrument("samples")
   case object Saxophone extends Instrument("saxophone")
+  case object Strings extends Instrument("strings")
   case object Synthesizer extends Instrument("synthesizer")
   case object Trombone extends Instrument("trombone")
   case object Trumpet extends Instrument("trumpet")
