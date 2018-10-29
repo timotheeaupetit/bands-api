@@ -36,11 +36,11 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[Album] {
 
   final override def findByName(name: String): Option[Album] = {
     val FIND =
-      """MATCH (a:Album {name: $name})
+      """MATCH (a:Album {title: $title})
         |RETURN a
       """.stripMargin
 
-    val result = session.run(FIND, parameters("name", name))
+    val result = session.run(FIND, parameters("title", name))
 
     Option(result.single()).flatMap(buildFrom)
   }
@@ -59,7 +59,7 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[Album] {
   final override def save(album: Album): Option[Album] = {
     val maybeAlbum = album.uuid.flatMap(findById)
     val MERGE =
-      """MERGE (a:Album {uuid: $uuid, name: $name})
+      """MERGE (a:Album {uuid: $uuid, title: $title})
         |ON CREATE SET a.released = $released
         |ON MATCH SET a.released = $released
         |RETURN a
@@ -78,7 +78,7 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[Album] {
     } yield {
       Album(
         uuid = Some(node.get("uuid").asString()),
-        name = node.get("name").asString(),
+        title = node.get("title").asString(),
         releaseDate = Some(node.get("released").asString())
       )
     }
@@ -89,8 +89,8 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[Album] {
       parameters(
         "uuid",
         album.uuid,
-        "name",
-        album.name,
+        "title",
+        album.title,
         "released",
         after.releaseDate.getOrElse(album.releaseDate.getOrElse("null"))
       )
@@ -99,8 +99,8 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[Album] {
       parameters(
         "uuid",
         uuid,
-        "name",
-        after.name,
+        "title",
+        after.title,
         "released",
         after.releaseDate.getOrElse("null")
       )

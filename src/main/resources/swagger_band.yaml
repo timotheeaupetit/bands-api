@@ -12,11 +12,6 @@ servers:
           - https
         default: http
 
-consumes:
-  - application/json
-produces:
-  - application/json
-
 tags:
   - name: Albums
     description: Group of actions regarding albums
@@ -28,21 +23,11 @@ tags:
 paths:
   /persons/{personId}/bands/{bandId}:
     parameters:
-      - name: personId
-        in: path
-        description: Id of person to use
-        required: true
-        schema:
-          $ref: '#components/schemas/uuid'
-      - name: bandId
-        in: path
-        description: Id of band to use
-        required: true
-        schema:
-          $ref: '#components/schemas/uuid'
+    - $ref: '#/components/parameters/PersonId'
+    - $ref: '#/components/parameters/BandId'
     post:
       tags:
-        - Persons
+      - Persons
       summary: Create a relationship between a person and a band
       requestBody:
         content:
@@ -59,15 +44,10 @@ paths:
 
   /persons/{personId}:
     parameters:
-      - name: personId
-        in: path
-        description: Id of person to use
-        required: true
-        schema:
-          $ref: '#components/schemas/uuid'
+    - $ref: '#/components/parameters/PersonId'
     get:
       tags:
-        - Persons
+      - Persons
       summary: Get the person by its Id
       responses:
         '200':
@@ -75,14 +55,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#components/schemas/Person'
+                $ref: '#/components/schemas/Person'
         '404':
           description: Person not found
         '500':
           description: Internal server error
     delete:
       tags:
-        - Persons
+      - Persons
       summary: Delete the person by its Id
       responses:
         '204':
@@ -95,7 +75,7 @@ paths:
   /persons:
     get:
       tags:
-        - Persons
+      - Persons
       summary: Get a list of all the persons
       responses:
         '200':
@@ -105,12 +85,12 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#components/schemas/Person'
+                  $ref: '#/components/schemas/Person'
         '500':
           description: Internal server error
     post:
       tags:
-        - Persons
+      - Persons
       summary: Create a new person
       responses:
         '201':
@@ -124,7 +104,7 @@ paths:
               $ref: '#/components/schemas/Person'
     put:
       tags:
-        - Persons
+      - Persons
       summary: Update a person
       responses:
         '200':
@@ -139,15 +119,10 @@ paths:
 
   /bands/{bandId}:
     parameters:
-      - name: bandId
-        in: path
-        required: true
-        description: Id of band to use
-        schema:
-          $ref: '#components/schemas/uuid'
+    - $ref: '#/components/parameters/BandId'
     get:
       tags:
-        - Bands
+      - Bands
       summary: Get the band by its Id
       responses:
         '200':
@@ -155,14 +130,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#components/schemas/Band'
+                $ref: '#/components/schemas/Band'
         '404':
           description: Band not found
         '500':
           description: Internal server error
     delete:
       tags:
-        - Bands
+      - Bands
       summary: Delete the band by its Id
       responses:
         '204':
@@ -175,7 +150,7 @@ paths:
   /bands:
     get:
       tags:
-        - Bands
+      - Bands
       summary: Get a list of all the bands
       responses:
         '200':
@@ -185,12 +160,12 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#components/schemas/Band'
+                  $ref: '#/components/schemas/Band'
         '500':
           description: Internal server error
     post:
       tags:
-        - Bands
+      - Bands
       summary: Create a new band
       requestBody:
         content:
@@ -204,7 +179,7 @@ paths:
           description: Internal server error
     put:
       tags:
-        - Bands
+      - Bands
       summary: Update the band by its Id
       requestBody:
         content:
@@ -221,15 +196,10 @@ paths:
 
   /albums/{albumId}:
     parameters:
-      - name: albumId
-        in: path
-        required: true
-        description: Id of album to use
-        schema:
-          $ref: '#components/schemas/uuid'
+    - $ref: '#/components/parameters/AlbumId'
     get:
       tags:
-        - Albums
+      - Albums
       summary: Get the album by its Id
       responses:
         '200':
@@ -237,14 +207,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#components/schemas/Album'
+                $ref: '#/components/schemas/Album'
         '404':
           description: Album not found
         '500':
           description: Internal server error
     delete:
       tags:
-        - Albums
+      - Albums
       summary: Delete the album by its Id
       responses:
         '204':
@@ -257,7 +227,7 @@ paths:
   /albums:
     get:
       tags:
-        - Albums
+      - Albums
       summary: Get a list of all the albums
       responses:
         '200':
@@ -267,12 +237,12 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#components/schemas/Album'
+                  $ref: '#/components/schemas/Album'
         '500':
           description: Internal server error
     post:
       tags:
-        - Albums
+      - Albums
       summary: Create a new album
       requestBody:
         content:
@@ -286,7 +256,7 @@ paths:
           description: Internal server error
     put:
       tags:
-        - Albums
+      - Albums
       summary: Update the album by its Id
       requestBody:
         content:
@@ -307,22 +277,22 @@ components:
       type: object
       properties:
         id:
-          $ref: '#components/schemas/uuid'
-        name:
-          description: Name of the album
+          $ref: '#/components/schemas/uuid'
+        title:
+          description: Title of the album
           type: string
         released:
           description: Date when the album was first released (yyyy-MM-dd)
           type: string
           format: full-date
       required:
-        - name
+      - title
 
     Band:
       type: object
       properties:
         id:
-          $ref: '#components/schemas/uuid'
+          $ref: '#/components/schemas/uuid'
         name:
           description: Name of the band
           type: string
@@ -343,13 +313,13 @@ components:
           type: string
           format: full-date
       required:
-        - name
+      - name
 
     Person:
       type: object
       properties:
         uuid:
-          $ref: '#components/schemas/uuid'
+          $ref: '#/components/schemas/uuid'
         full_name:
           description: Name of the person
           type: string
@@ -370,7 +340,7 @@ components:
           format: full-date
           description: Date of birth (yyyy-MM-dd)
       required:
-        - full_name
+      - full_name
 
     PlayedIn:
       type: object
@@ -392,3 +362,28 @@ components:
       description: Unique identifier
       type: string
       format: uuid
+
+  parameters:
+    AlbumId:
+      name: albumId
+      in: path
+      required: true
+      description: Id of album to use
+      schema:
+        $ref: '#/components/schemas/uuid'
+
+    BandId:
+      name: bandId
+      in: path
+      description: Id of band to use
+      required: true
+      schema:
+        $ref: '#/components/schemas/uuid'
+
+    PersonId:
+      name: personId
+      in: path
+      description: Id of person to use
+      required: true
+      schema:
+        $ref: '#/components/schemas/uuid'
