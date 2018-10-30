@@ -10,12 +10,6 @@ import net.ruippeixotog.scalascraper.scraper.ContentExtractors._
 
 class Scraper(configuration: ProjectConfig) {
 
-  def inferBandUrl(bandName: String): String = {
-    val baseUrl = configuration.miscConfig.srcUrl
-
-    baseUrl + normalizeBandName(bandName)
-  }
-
   final def normalizeBandName(bandName: String): String = {
 //    bandName.toLowerCase
 //      .replace("&", "and")
@@ -44,7 +38,7 @@ class Scraper(configuration: ProjectConfig) {
   }
 
 //  def process: Map[String, Element] = {
-//    val url = "/Users/timotheeaupetit/Library/Preferences/IntelliJIdea2018.1/scratches/APC.html"
+//    val url = "/Users/timotheeaupetit/Library/Preferences/IntelliJIdea2018.2/scratches/APC.html"
 //  }
 }
 

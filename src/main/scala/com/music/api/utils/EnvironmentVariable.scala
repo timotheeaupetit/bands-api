@@ -4,7 +4,7 @@ import java.nio.file.{FileSystem, FileSystems, Path}
 import java.util.StringTokenizer
 
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
-import cats.syntax.cartesian._
+import cats.implicits._
 import cats.{Monoid, Semigroup, SemigroupK, Show, Traverse}
 import com.music.api.utils.EnvironmentVariables._
 
@@ -113,14 +113,6 @@ trait EnvironmentVariables {
   case class ParsingError(environmentVariable: EnvironmentVariable, throwable: Throwable) extends ConfigError
 }
 
-trait MiscConfiguration {
-  case object SOURCE_URL extends EnvironmentVariable("SOURCE_URL")
-
-  case class MiscConfig(srcUrl: String)
-
-  def fMiscConfig: ValidatedNel[ConfigError, MiscConfig] = require[String](SOURCE_URL).map(MiscConfig)
-}
-
 trait Neo4jConfiguration {
   case object NEO4J_DB extends EnvironmentVariable("NEO4J_DB")
   case object NEO4J_HOST extends EnvironmentVariable("NEO4J_HOST")
@@ -130,12 +122,12 @@ trait Neo4jConfiguration {
 
   case class Neo4jConfig(db: String, host: String, port: Int, user: Option[String], password: Option[String])
 
-  def fNeo4jConfig: ValidatedNel[ConfigError, Neo4jConfig] = {
-    (require[String](NEO4J_DB)
-      |@| require[String](NEO4J_HOST)
-      |@| require[Int](NEO4J_PORT)
-      |@| option[String](NEO4J_USER)
-      |@| option[String](NEO4J_PASSWORD)).map(Neo4jConfig)
+  def fNeo4jConfig: ValidationResult[Neo4jConfig] = {
+    (require[String](NEO4J_DB),
+      require[String](NEO4J_HOST),
+      require[Int](NEO4J_PORT),
+      option[String](NEO4J_USER),
+      option[String](NEO4J_PASSWORD)).mapN(Neo4jConfig)
   }
 }
 
@@ -147,17 +139,17 @@ trait ApplicationConfiguration {
 
   case class AppConfig(application: String, env: String, port: Int, app_home: String)
 
-  def fApplicationConfig: ValidatedNel[ConfigError, AppConfig] = {
-    (require[String](APPLICATION)
-      |@| require[String](ENV_NAME)
-      |@| require[Int](PORT)
-      |@| require[String](APP_HOME)).map(AppConfig)
+  def fApplicationConfig: ValidationResult[AppConfig] = {
+    (require[String](APPLICATION),
+      require[String](ENV_NAME),
+      require[Int](PORT),
+      require[String](APP_HOME)).mapN(AppConfig)
   }
 }
 
-trait ProjectConfiguration extends ApplicationConfiguration with Neo4jConfiguration with MiscConfiguration {
+trait ProjectConfiguration extends ApplicationConfiguration with Neo4jConfiguration {
 
-  case class ProjectConfig(appConfig: AppConfig, neo4jConfig: Neo4jConfig, miscConfig: MiscConfig)
+  case class ProjectConfig(appConfig: AppConfig, neo4jConfig: Neo4jConfig)
 
   def projectConfiguration(): ValidationResult[ProjectConfig] = {
     projectConfiguration(FileSystems.getDefault)
@@ -165,10 +157,12 @@ trait ProjectConfiguration extends ApplicationConfiguration with Neo4jConfigurat
 
   def projectConfiguration(fs: FileSystem): ValidationResult[ProjectConfig] = {
     implicit val pathParseConfig: ParseConfig[Path] = new ParseConfig[Path] {
-      def apply(str: String): Try[Path] = Try { fs.getPath(str) }
+      def apply(str: String): Try[Path] = Try {
+        fs.getPath(str)
+      }
     }
 
-    (fApplicationConfig |@| fNeo4jConfig |@| fMiscConfig).map(ProjectConfig)
+    (fApplicationConfig, fNeo4jConfig).mapN(ProjectConfig)
   }
 }
 
