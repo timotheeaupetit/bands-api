@@ -26,7 +26,6 @@ jobs:
                     pip install awscli
                     apt-get clean && apt-get autoclean
       - checkout
-
       - restore_cache:
           key: sbt-cache
 
