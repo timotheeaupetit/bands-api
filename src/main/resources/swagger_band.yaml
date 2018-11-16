@@ -1,7 +1,7 @@
 openapi: '3.0.1'
 info:
   title: Bands API
-  version: "0.0.2"
+  version: "0.1.0"
 
 servers:
   - url: '{protocol}://localhost:9000'
@@ -23,11 +23,11 @@ tags:
 paths:
   /persons/{personId}/bands/{bandId}:
     parameters:
-    - $ref: '#/components/parameters/PersonId'
-    - $ref: '#/components/parameters/BandId'
+      - $ref: '#/components/parameters/PersonId'
+      - $ref: '#/components/parameters/BandId'
     post:
       tags:
-      - Persons
+        - Persons
       summary: Create a relationship between a person and a band
       requestBody:
         content:
@@ -38,16 +38,16 @@ paths:
         '201':
           description: Relationship created
         '404':
-          description: Person or band not found
+          $ref: '#/components/responses/NotFound'
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
 
   /persons/{personId}:
     parameters:
-    - $ref: '#/components/parameters/PersonId'
+      - $ref: '#/components/parameters/PersonId'
     get:
       tags:
-      - Persons
+        - Persons
       summary: Get the person by its Id
       responses:
         '200':
@@ -57,27 +57,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/Person'
         '404':
-          description: Person not found
+          $ref: '#/components/responses/NotFound'
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-      - Persons
+        - Persons
       summary: Delete the person by its Id
       responses:
         '204':
           description: Person deleted
         '404':
-          description: Person not found
+          $ref: '#/components/responses/NotFound'
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
 
   /persons:
     get:
       parameters:
-      - $ref: '#/components/parameters/PersonName'
+        - $ref: '#/components/parameters/PersonName'
       tags:
-      - Persons
+        - Persons
       summary: Get a list of all the persons
       responses:
         '200':
@@ -89,42 +89,42 @@ paths:
                 items:
                   $ref: '#/components/schemas/Person'
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
     post:
       tags:
-      - Persons
+        - Persons
       summary: Create a new person
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Person'
       responses:
         '201':
           description: Person created
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
+    put:
+      tags:
+        - Persons
+      summary: Update a person
       requestBody:
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Person'
-    put:
-      tags:
-      - Persons
-      summary: Update a person
       responses:
         '200':
           description: Person updated
         '500':
-          description: Internal server error
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Person'
+          $ref: '#/components/responses/InternalServerError'
 
   /bands/{bandId}:
     parameters:
-    - $ref: '#/components/parameters/BandId'
+      - $ref: '#/components/parameters/BandId'
     get:
       tags:
-      - Bands
+        - Bands
       summary: Get the band by its Id
       responses:
         '200':
@@ -134,25 +134,25 @@ paths:
               schema:
                 $ref: '#/components/schemas/Band'
         '404':
-          description: Band not found
+          $ref: '#/components/responses/NotFound'
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-      - Bands
+        - Bands
       summary: Delete the band by its Id
       responses:
         '204':
           description: Band deleted
         '404':
-          description: Band not found
+          $ref: '#/components/responses/NotFound'
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
 
   /bands:
     get:
       tags:
-      - Bands
+        - Bands
       summary: Get a list of all the bands
       responses:
         '200':
@@ -164,10 +164,10 @@ paths:
                 items:
                   $ref: '#/components/schemas/Band'
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
     post:
       tags:
-      - Bands
+        - Bands
       summary: Create a new band
       requestBody:
         content:
@@ -178,10 +178,10 @@ paths:
         '201':
           description: Created
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
     put:
       tags:
-      - Bands
+        - Bands
       summary: Update the band by its Id
       requestBody:
         content:
@@ -192,16 +192,32 @@ paths:
         '200':
           description: Band updated
         '404':
-          description: Band not found
+          $ref: '#/components/responses/NotFound'
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
+
+  /band-page:
+    post:
+      tags:
+        - Bands
+      summary: Save band page data coming from the scraper
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BandPage'
+      responses:
+        '201':
+          description: Content saved properly
+        '500':
+          $ref: '#/components/responses/InternalServerError'
 
   /albums/{albumId}:
     parameters:
-    - $ref: '#/components/parameters/AlbumId'
+      - $ref: '#/components/parameters/AlbumId'
     get:
       tags:
-      - Albums
+        - Albums
       summary: Get the album by its Id
       responses:
         '200':
@@ -211,28 +227,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/Album'
         '404':
-          description: Album not found
+          $ref: '#/components/responses/NotFound'
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
     delete:
       tags:
-      - Albums
+        - Albums
       summary: Delete the album by its Id
       responses:
         '204':
           description: Album deleted
         '404':
-          description: Album not found
+          $ref: '#/components/responses/NotFound'
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
 
   /albums:
     get:
       parameters:
-      - $ref: '#/components/parameters/LowerBound'
-      - $ref: '#/components/parameters/UpperBound'
+        - $ref: '#/components/parameters/LowerBound'
+        - $ref: '#/components/parameters/UpperBound'
       tags:
-      - Albums
+        - Albums
       summary: Get a list of all the albums
       responses:
         '200':
@@ -244,10 +260,10 @@ paths:
                 items:
                   $ref: '#/components/schemas/Album'
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
     post:
       tags:
-      - Albums
+        - Albums
       summary: Create a new album
       requestBody:
         content:
@@ -258,10 +274,10 @@ paths:
         '201':
           description: Created
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
     put:
       tags:
-      - Albums
+        - Albums
       summary: Update the album by its Id
       requestBody:
         content:
@@ -272,9 +288,9 @@ paths:
         '200':
           description: Album updated
         '404':
-          description: Album not found
+          $ref: '#/components/responses/NotFound'
         '500':
-          description: Internal server error
+          $ref: '#/components/responses/InternalServerError'
 
 components:
   schemas:
@@ -291,7 +307,7 @@ components:
           type: string
           format: date
       required:
-      - title
+        - title
 
     Band:
       type: object
@@ -314,7 +330,75 @@ components:
           type: string
           format: full-year
       required:
-      - name
+        - name
+
+    BandPage:
+      type: object
+      properties:
+        name:
+          description: Name of the band
+          type: string
+          example: Metallica
+        formed:
+          type: object
+          properties:
+            date:
+              type: string
+              format: full-year
+            location:
+              $ref: '#/components/schemas/Location'
+        disbanded:
+          type: object
+          properties:
+            date:
+              type: string
+              format: full-year
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
+        albums:
+          type: array
+          items:
+            $ref: '#/components/schemas/Album'
+
+    Location:
+      type: object
+      properties:
+        country:
+          type: string
+        state:
+          type: string
+        city:
+          type: string
+      required:
+        - country
+
+    Member:
+      type: object
+      properties:
+        full_name:
+          type: string
+        aka:
+          type: string
+        instruments:
+          type: array
+          items:
+            type: string
+        periods:
+          type: array
+          items:
+            $ref: '#/components/schemas/Period'
+
+    Period:
+      type: object
+      properties:
+        start:
+          type: string
+          format: full-year
+        end:
+          type: string
+          format: full-year
 
     Person:
       type: object
@@ -341,7 +425,7 @@ components:
           format: full-date
           description: Date of birth (yyyy-MM-dd)
       required:
-      - full_name
+        - full_name
 
     PlayedIn:
       type: object
@@ -419,3 +503,10 @@ components:
       schema:
         type: string
         format: full-year
+
+  responses:
+    NotFound:
+      description: Resource not found
+
+    InternalServerError:
+      description: Internal server error

@@ -48,15 +48,13 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
         } ~
           path("bands" / JavaUUID) { bandId =>
             val maybeBand = bandQueries.findById(bandId)
-            pathEnd {
-              post {
-                entity(as[PlayedIn]) { playedIn =>
-                  (maybePerson, maybeBand) match {
-                    case (Some(person), Some(band)) =>
-                      playedInQueries.link(person, band, playedIn)
-                      complete(Created)
-                    case _                          => complete(NotFound)
-                  }
+            post {
+              entity(as[PlayedIn]) { playedIn =>
+                (maybePerson, maybeBand) match {
+                  case (Some(person), Some(band)) =>
+                    playedInQueries.link(person, band, playedIn)
+                    complete(Created)
+                  case _                          => complete(NotFound)
                 }
               }
             }
@@ -180,7 +178,13 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
                   }
                 }
               }
+
           }
+      } ~
+      path("band-page") {
+        post {
+          complete(OK)
+        }
       } ~ SwaggerRoute.getSwaggerRoute("swagger_band.yaml")
 
 }
