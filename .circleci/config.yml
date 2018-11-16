@@ -1,12 +1,16 @@
-version: 2
+version: 2.1
+
+executors:
+  project-jdk:
+    docker:
+    - image: openjdk:8
+
 jobs:
   build:
-    working-directory: ~/bands-api
-    docker:
-      - image: openjdk:8
+    executor: project-jdk
 
     environment:
-      - SBT_VERSION: 1.1.1
+      - SBT_VERSION: 1.2.6
 
     steps:
       - run: echo 'export ARTIFACT_BUILD=$CIRCLE_PROJECT_REPONAME-$CIRCLE_BUILD_NUM.zip' >> $BASH_ENV
@@ -22,39 +26,31 @@ jobs:
                     pip install awscli
                     apt-get clean && apt-get autoclean
       - checkout
+
       - restore_cache:
           key: sbt-cache
+
       - run:
           name: Compile bands-api dist package
           command: cat /dev/null | sbt clean update dist
+
+      - run:
+          name: Test
+          command: sbt test
+
       - store_artifacts:
           path: target/universal/bands-api.zip
           destination: bands-api
+
       - save_cache:
           key: sbt-cache
           paths:
             - "~/.ivy2/cache"
             - "~/.sbt"
             - "~/.m2"
-      - run: echo "Build"
-
-  unit-tests:
-    working-directory: ~/bands-api
-    docker:
-      - image: openjdk:8
-
-    environment:
-      - SBT_VERSION: 1.1.1
-
-    steps:
-      - checkout
-      - run: echo "Unit tests"
 
 workflows:
-  version: 2
+  version: 2.1
   build-and-test:
     jobs:
       - build
-      - unit-tests:
-          requires:
-            - build

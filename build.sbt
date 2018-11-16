@@ -41,4 +41,4 @@ lazy val root = (project in file("."))
   ).map(_ % circeVersion))
   .enablePlugins(JavaAppPackaging)
 
-packageName in Universal := "root"
+packageName in Universal := "bands-api"
