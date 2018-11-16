@@ -94,7 +94,7 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[Album] {
         "released",
         after.releaseDate.getOrElse(album.releaseDate.getOrElse("null"))
       )
-    case None =>
+    case None        =>
       val uuid = UUID.randomUUID().toString
       parameters(
         "uuid",

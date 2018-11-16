@@ -103,7 +103,7 @@ class PersonQueries(implicit session: Session) extends NodeQueries[Person] {
         "born",
         after.born.getOrElse(person.born.getOrElse("null"))
       )
-    case None =>
+    case None         =>
       val uuid = UUID.randomUUID().toString
       parameters(
         "uuid",

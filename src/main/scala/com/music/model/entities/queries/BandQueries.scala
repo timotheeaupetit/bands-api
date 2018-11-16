@@ -103,7 +103,7 @@ class BandQueries(implicit session: Session) extends NodeQueries[Band] {
         "country",
         after.country.getOrElse(band.country.getOrElse("null"))
       )
-    case None =>
+    case None       =>
       val uuid = UUID.randomUUID().toString
       parameters(
         "uuid",
