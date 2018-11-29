@@ -13,77 +13,40 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[NewAlbum, Albu
 
   final override def create(newAlbum: NewAlbum): Option[Album] = {
     val album = Album(newAlbum)
-    val CREATE =
-      """MERGE (a:Album {title: $title})
-        |ON CREATE SET a.uuid = $uuid, a.released = $released
-        |ON MATCH SET a.uuid = $uuid, a.released = $released
-        |RETURN a
-      """.stripMargin
-
-    val params = setParams(album)
-
-    val result = session.run(CREATE, params)
+    val result = session.run(AlbumQueries.CREATE, AlbumQueries.setParams(album))
 
     Option(result.single()).flatMap(buildFrom)
   }
 
   final override def delete(uuid: UUID): Option[Throwable] = {
-    val DELETE =
-      """MATCH (a:Album {uuid: $uuid})
-        |DETACH DELETE a
-      """.stripMargin
-
-    Try(session.run(DELETE, setIdParam(uuid))) match {
+    Try(session.run(AlbumQueries.DELETE, AlbumQueries.setIdParam(uuid))) match {
       case Success(_)         => None
       case Failure(exception) => throw new NoSuchElementException(exception + ": Album " + uuid + " doesn't exist.")
     }
   }
 
   final override def findAll(): List[Album] = {
-    val FIND_ALL =
-      """MATCH (a:Album)
-        |RETURN a
-        |LIMIT 50
-      """.stripMargin
-
-    val result = session.run(FIND_ALL)
+    val result = session.run(AlbumQueries.FIND_ALL)
 
     result.asScala.toList.flatten(buildFrom)
   }
 
   final override def findById(uuid: UUID): Option[Album] = {
-    val FIND =
-      """MATCH (a:Album {uuid: $uuid})
-        |RETURN a
-      """.stripMargin
-
-    Try(session.run(FIND, setIdParam(uuid))) match {
+    Try(session.run(AlbumQueries.FIND_BY_ID, AlbumQueries.setIdParam(uuid))) match {
       case Success(result) => Option(result.single()).flatMap(buildFrom)
       case Failure(_)      => None
     }
   }
 
-  final override def findByName(name: String): Option[Album] = {
-    val FIND =
-      """MATCH (a:Album {title: $title})
-        |RETURN a
-      """.stripMargin
+  final override def findByName(title: String): Option[Album] = {
 
-    val result = session.run(FIND, parameters("title", name))
+    val result = session.run(AlbumQueries.FIND_BY_NAME, parameters("title", title))
 
     Option(result.single()).flatMap(buildFrom)
   }
 
   final override def update(album: Album): Option[Album] = {
-    val MERGE =
-      """MERGE (a:Album {uuid: $uuid})
-        |ON MATCH SET title = $title, a.released = $released
-        |RETURN a
-      """.stripMargin
-
-    val params = setParams(album)
-
-    Try(session.run(MERGE, params)) match {
+    Try(session.run(AlbumQueries.UPDATE, AlbumQueries.setParams(album))) match {
       case Success(result) => Option(result.single()).flatMap(buildFrom)
       case Failure(_)      => None
     }
@@ -99,12 +62,50 @@ class AlbumQueries(implicit session: Session) extends NodeQueries[NewAlbum, Albu
             releaseDate = Try(node.get("released").asString().toInt).toOption)
     }
   }
+}
 
-  final override protected def setParams(album: Album): Value = {
+object AlbumQueries {
+  val CREATE: String =
+    """MERGE (a:Album {title: $title})
+      |ON CREATE SET a.uuid = $uuid,
+      |              a.released = $released
+      |ON MATCH SET a.released = $released
+      |RETURN a
+    """.stripMargin
+
+  val DELETE: String =
+    """MATCH (a:Album {uuid: $uuid})
+      |DETACH DELETE a
+    """.stripMargin
+
+  val FIND_ALL: String =
+    """MATCH (a:Album)
+      |RETURN a
+      |LIMIT 50
+    """.stripMargin
+
+  val FIND_BY_ID: String =
+    """MATCH (a:Album {uuid: $uuid})
+      |RETURN a
+    """.stripMargin
+
+  val FIND_BY_NAME: String =
+    """MATCH (a:Album {title: $title})
+      |RETURN a
+    """.stripMargin
+
+  val UPDATE: String =
+    """MERGE (a:Album {uuid: $uuid})
+      |ON MATCH SET title = $title,
+      |             a.released = $released
+      |RETURN a
+    """.stripMargin
+
+  def setIdParam(uuid: UUID): Value = parameters("uuid", uuid.toString)
+
+  def setParams(album: Album): Value = {
     parameters("uuid", album.uuid.toString,
                "title", album.title,
                "released", album.releaseDate.getOrElse("null").toString)
   }
-
-  final override protected def setIdParam(uuid: UUID): Value = parameters("uuid", uuid.toString)
 }

@@ -8,7 +8,7 @@ class Neo4jManager(configuration: Neo4jConfig) {
   private val username = configuration.user.getOrElse("")
   private val password = configuration.password.getOrElse("")
 
-  private lazy val driver: Driver = GraphDatabase.driver(uri, AuthTokens.basic(username, password))
+  lazy val driver: Driver = GraphDatabase.driver(uri, AuthTokens.basic(username, password))
 
   lazy val session: Session = driver.session()
 }

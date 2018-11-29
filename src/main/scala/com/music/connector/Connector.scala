@@ -7,12 +7,13 @@ import com.music.model.entities.queries.{AlbumQueries, BandQueries, PersonQuerie
 import com.music.model.entities.types._
 import com.music.model.relationships.queries.PlayedInQueries
 import com.music.model.relationships.types.PlayedIn
+import com.music.model.{BandPage, BandPageQueries}
 import com.music.utils.ProjectConfiguration.ProjectConfig
 import com.music.utils.{Neo4jManager, SwaggerRoute}
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import io.circe.generic.auto._
 import io.circe.syntax._
-import org.neo4j.driver.v1.Session
+import org.neo4j.driver.v1.{AccessMode, Session}
 
 class Connector(projectConfig: ProjectConfig) extends HttpApp {
 
@@ -52,9 +53,11 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
               entity(as[PlayedIn]) { playedIn =>
                 (maybePerson, maybeBand) match {
                   case (Some(person), Some(band)) =>
-                    playedInQueries.link(person, band, playedIn)
+                    playedInQueries.link(person, playedIn, band)
                     complete(Created)
-                  case _                          => complete(NotFound)
+                  case (None, _)                  => complete(NotFound)
+                  case (_, None)                  => complete(NotFound)
+                  case _                          => complete(InternalServerError)
                 }
               }
             }
@@ -183,7 +186,15 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
       } ~
       path("band-page") {
         post {
-          complete(OK)
+          entity(as[BandPage]) { bandPage =>
+            val session = neo4jManager.driver.session(AccessMode.WRITE)
+            val bandPageQueries = new BandPageQueries(session)
+
+            bandPageQueries.save(bandPage)
+
+            session.close()
+            complete(OK)
+          }
         }
       } ~ SwaggerRoute.getSwaggerRoute("swagger_band.yaml")
 
