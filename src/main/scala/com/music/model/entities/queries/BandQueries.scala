@@ -2,13 +2,42 @@ package com.music.model.entities.queries
 
 import java.util.UUID
 
-import com.music.model.entities.types.Band
+import com.music.model.entities.types.{Band, NewBand}
 import org.neo4j.driver.v1.Values.parameters
 import org.neo4j.driver.v1.{Record, Session, Value}
 
 import scala.collection.JavaConverters._
+import scala.util.{Failure, Success, Try}
 
-class BandQueries(implicit session: Session) extends NodeQueries[Band] {
+class BandQueries(implicit session: Session) extends NodeQueries[NewBand, Band] {
+
+  final override def create(newBand: NewBand): Option[Band] = {
+    val band = Band(newBand)
+    val CREATE =
+      """MERGE (b:Band {name: $name})
+        |ON CREATE SET uuid = $uuid, b.formed = $formed, b.disbanded = $disbanded, b.country = $country
+        |ON MATCH SET uuid = $uuid, b.formed = $formed, b.disbanded = $disbanded, b.country = $country
+        |RETURN b
+      """.stripMargin
+
+    val params = setParams(band)
+
+    val result = session.run(CREATE, params)
+
+    Option(result.single()).flatMap(buildFrom)
+  }
+
+  final override def delete(uuid: UUID): Option[Throwable] = {
+    val DELETE =
+      """MATCH (b:Band {uuid: $uuid})
+        |DETACH DELETE b
+      """.stripMargin
+
+    Try(session.run(DELETE, setIdParam(uuid))) match {
+      case Success(_)         => None
+      case Failure(exception) => throw new NoSuchElementException(exception + ": Band " + uuid + " doesn't exist.")
+    }
+  }
 
   final override def findAll(): List[Band] = {
     val FIND_ALL =
@@ -19,19 +48,19 @@ class BandQueries(implicit session: Session) extends NodeQueries[Band] {
 
     val result = session.run(FIND_ALL)
 
-    result.asScala.toList
-      .flatten(buildFrom)
+    result.asScala.toList.flatten(buildFrom)
   }
 
-  final override def findById(uuid: String): Option[Band] = {
+  final override def findById(uuid: UUID): Option[Band] = {
     val FIND =
       """MATCH (b:Band {uuid: $uuid})
         |RETURN b
       """.stripMargin
 
-    val result = session.run(FIND, parameters("uuid", uuid))
-
-    Option(result.single()).flatMap(buildFrom)
+    Try(session.run(FIND, setIdParam(uuid))) match {
+      case Success(result) => Option(result.single()).flatMap(buildFrom)
+      case Failure(_)      => None
+    }
   }
 
   final override def findByName(name: String): Option[Band] = {
@@ -45,79 +74,41 @@ class BandQueries(implicit session: Session) extends NodeQueries[Band] {
     Option(result.single()).flatMap(buildFrom)
   }
 
-  final override def delete(uuid: String): Option[Band] = {
-    val DELETE =
-      """MATCH (b:Band {uuid: $uuid})
-        |DETACH DELETE b
-      """.stripMargin
-
-    val result = session.run(DELETE, parameters("uuid", uuid))
-
-    Option(result.single()).flatMap(buildFrom)
-  }
-
-  final override def save(band: Band): Option[Band] = {
-    val maybeBand = band.uuid.flatMap(findById)
+  final override def update(band: Band): Option[Band] = {
     val MERGE =
-      """MERGE (b:Band {uuid: $uuid, name: $name})
-        |ON CREATE SET b.formed = $formed, b.disbanded = $disbanded, b.aka = $aka, b.country = $country
-        |ON MATCH SET b.formed = $formed, b.disbanded = $disbanded, b.aka = $aka, b.country = $country
+      """MERGE (b:Band {uuid: $uuid})
+        |ON MATCH SET name = $name, b.formed = $formed, b.disbanded = $disbanded, b.country = $country
         |RETURN b
       """.stripMargin
 
-    val params = setParams(maybeBand, band)
+    val params = setParams(band)
 
-    val result = session.run(MERGE, params)
-
-    Option(result.single()).flatMap(buildFrom)
+    Try(session.run(MERGE, params)) match {
+      case Success(result) => Option(result.single()).flatMap(buildFrom)
+      case Failure(_)      => None
+    }
   }
 
   final override protected def buildFrom(record: Record): Option[Band] = {
     for {
       node <- Option(record.get(0))
+      _uuid <- Try(UUID.fromString(node.get("uuid").asString())).toOption
     } yield {
-      Band(
-        uuid = Some(node.get("uuid").asString()),
-        name = node.get("name").asString(),
-        aka = Some(node.get("aka").asString()),
-        country = Some(node.get("country").asString()),
-        formed = Some(node.get("formed").asString()),
-        disbanded = Some(node.get("disbanded").asString())
-      )
+      Band(uuid = _uuid,
+           name = node.get("name").asString(),
+           country = Some(node.get("country").asString()),
+           formed = Try(node.get("formed").asString().toInt).toOption,
+           disbanded = Try(node.get("disbanded").asString().toInt).toOption)
     }
   }
 
-  final override protected def setParams(before: Option[Band], after: Band): Value = before match {
-    case Some(band) =>
-      parameters(
-        "uuid",
-        band.uuid,
-        "name",
-        band.name,
-        "formed",
-        after.formed.getOrElse(band.formed.getOrElse("null")),
-        "disbanded",
-        after.disbanded.getOrElse(band.disbanded.getOrElse("null")),
-        "aka",
-        after.aka.getOrElse(band.aka.getOrElse("null")),
-        "country",
-        after.country.getOrElse(band.country.getOrElse("null"))
-      )
-    case None       =>
-      val uuid = UUID.randomUUID().toString
-      parameters(
-        "uuid",
-        uuid,
-        "name",
-        after.name,
-        "formed",
-        after.formed.getOrElse("null"),
-        "disbanded",
-        after.disbanded.getOrElse("null"),
-        "aka",
-        after.aka.getOrElse("null"),
-        "country",
-        after.country.getOrElse("null")
-      )
+  final override def setParams(band: Band): Value = {
+    parameters("uuid", band.uuid.toString,
+               "name", band.name,
+               "formed", band.formed.getOrElse("null").toString,
+               "disbanded", band.disbanded.getOrElse("null").toString,
+               "country", band.country.getOrElse("null"))
   }
+
+  final override protected def setIdParam(uuid: UUID): Value = parameters("uuid", uuid.toString)
 }
