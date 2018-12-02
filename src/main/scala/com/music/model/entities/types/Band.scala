@@ -1,8 +1,29 @@
 package com.music.model.entities.types
 
-case class Band(uuid: Option[String],
+import java.util.UUID
+
+case class Band(uuid: UUID,
                 name: String,
-                aka: Option[String],
                 country: Option[String],
-                formed: Option[String],
-                disbanded: Option[String])
+                formed: Option[Int],
+                disbanded: Option[Int])
+
+object Band {
+  def apply(uuid: UUID,
+            name: String,
+            country: Option[String],
+            formed: Option[Int],
+            disbanded: Option[Int]): Band = new Band(uuid, name, country, formed, disbanded)
+
+  def apply(newBand: NewBand): Band = new Band(uuid = UUID.randomUUID(),
+                                               name = newBand.name,
+                                               country = newBand.country,
+                                               formed = newBand.formed,
+                                               disbanded = newBand.disbanded)
+
+}
+
+case class NewBand(name: String,
+                   country: Option[String],
+                   formed: Option[Int],
+                   disbanded: Option[Int])

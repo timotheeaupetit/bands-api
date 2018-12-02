@@ -28,114 +28,157 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
 
   val routes: Route =
     pathPrefix("persons") {
-      pathEnd {
-        get {
-          val response = personQueries.findAll().asJson
-          complete(ToResponseMarshallable(response))
-        } ~
-          post {
-            entity(as[Person]) { newPerson =>
-              val response = personQueries.save(newPerson).asJson
-              complete(ToResponseMarshallable(response))
+      pathPrefix(JavaUUID) { personId =>
+        val maybePerson = personQueries.findById(personId)
+        pathEnd {
+          get {
+            maybePerson match {
+              case Some(response) => complete(ToResponseMarshallable(response.asJson))
+              case None           => complete(NotFound)
+              case _              => complete(InternalServerError)
             }
           } ~
-          put {
-            entity(as[Person]) { person =>
-              val response = personQueries.save(person).asJson
-              complete(ToResponseMarshallable(response))
+            delete {
+              personQueries.delete(personId) match {
+                case None    => complete(NoContent)
+                case Some(_) => complete(NotFound)
+                case _       => complete(InternalServerError)
+              }
+            }
+        } ~
+          path("bands" / JavaUUID) { bandId =>
+            val maybeBand = bandQueries.findById(bandId)
+            pathEnd {
+              post {
+                entity(as[PlayedIn]) { playedIn =>
+                  (maybePerson, maybeBand) match {
+                    case (Some(person), Some(band)) =>
+                      playedInQueries.link(person, band, playedIn)
+                      complete(Created)
+                    case _                          => complete(NotFound)
+                  }
+                }
+              }
             }
           }
       } ~
-        pathPrefix(Segment) { strId =>
-          val personId = strId.trim
-          val maybePerson = personQueries.findById(personId)
-          pathEnd {
-            get {
-              val response = maybePerson.asJson
+        parameterSeq { params =>
+          val parameters = params.toMap
+          val maybeFullName = parameters.get("full-name")
+          val maybeFirstName = parameters.get("first-name")
+          val maybeLastName = parameters.get("last-name")
+          val maybeBirthDate = parameters.get("born")
+
+          get {
+            val response = personQueries.findAll().asJson
+            complete(ToResponseMarshallable(response))
+          }
+        } ~
+        pathEnd {
+          post {
+            entity(as[NewPerson]) { newPerson =>
+              val response = personQueries.create(newPerson).asJson
               complete(ToResponseMarshallable(response))
-            } ~
-              delete {
-                val response = personQueries.delete(personId).asJson
-                complete(ToResponseMarshallable(response))
-              }
+            }
           } ~
-            path("bands" / Segment) { strBandId =>
-              val bandId = strBandId.trim
-              val maybeBand = bandQueries.findById(bandId)
-              pathEnd {
-                post {
-                  entity(as[PlayedIn]) { playedIn =>
-                    (maybePerson, maybeBand) match {
-                      case (Some(person), Some(band)) =>
-                        playedInQueries.link(person, band, playedIn)
-                        complete(Created)
-                      case _ => complete(NotFound)
-                    }
-                  }
+            put {
+              entity(as[Person]) { person =>
+                personQueries.update(person) match {
+                  case Some(response) => complete(ToResponseMarshallable(response.asJson))
+                  case None           => complete(NotFound)
+                  case _              => complete(InternalServerError)
                 }
               }
             }
         }
     } ~
       pathPrefix("bands") {
-        pathEnd {
+        path(JavaUUID) { bandId =>
           get {
-            val response = bandQueries.findAll().asJson
-            complete(ToResponseMarshallable(response))
+            bandQueries.findById(bandId) match {
+              case Some(response) => complete(ToResponseMarshallable(response.asJson))
+              case None           => complete(NotFound)
+              case _              => complete(InternalServerError)
+            }
           } ~
-            post {
-              entity(as[Band]) { newBand =>
-                val response = bandQueries.save(newBand).asJson
-                complete(ToResponseMarshallable(response))
-              }
-            } ~
-            put {
-              entity(as[Band]) { band =>
-                val response = bandQueries.save(band).asJson
-                complete(ToResponseMarshallable(response))
+            delete {
+              bandQueries.delete(bandId) match {
+                case None    => complete(NoContent)
+                case Some(_) => complete(NotFound)
+                case _       => complete(InternalServerError)
               }
             }
         } ~
-          path(Segment) { strId =>
-            val bandId = strId.trim
+          parameterSeq { params =>
+            val parameters = params.toMap
+            val maybeName = parameters.get("name")
+
             get {
-              val response = bandQueries.findById(bandId).asJson
+              val response = bandQueries.findAll().asJson
               complete(ToResponseMarshallable(response))
-            } ~
-              delete {
-                val response = bandQueries.delete(bandId).asJson
+            }
+          } ~
+          pathEnd {
+            post {
+              entity(as[NewBand]) { newBand =>
+                val response = bandQueries.create(newBand).asJson
                 complete(ToResponseMarshallable(response))
+              }
+            } ~
+              put {
+                entity(as[Band]) { band =>
+                  bandQueries.update(band) match {
+                    case Some(response) => complete(ToResponseMarshallable(response.asJson))
+                    case None           => complete(NotFound)
+                    case _              => complete(InternalServerError)
+                  }
+
+                }
               }
           }
       } ~
       pathPrefix("albums") {
-        pathEnd {
+        path(JavaUUID) { albumId =>
           get {
-            val response = albumQueries.findAll().asJson
-            complete(ToResponseMarshallable(response))
+            albumQueries.findById(albumId) match {
+              case Some(response) => complete(ToResponseMarshallable(response.asJson))
+              case None           => complete(NotFound)
+              case _              => complete(InternalServerError)
+            }
           } ~
-            post {
-              entity(as[Album]) { newAlbum =>
-                val response = albumQueries.save(newAlbum).asJson
-                complete(ToResponseMarshallable(response))
-              }
-            } ~
-            put {
-              entity(as[Album]) { album =>
-                val response = albumQueries.save(album).asJson
-                complete(ToResponseMarshallable(response))
+            delete {
+              albumQueries.delete(albumId) match {
+                case None    => complete(NoContent)
+                case Some(_) => complete(NotFound)
+                case _       => complete(InternalServerError)
               }
             }
         } ~
-          path(Segment) { strId =>
-            val albumId = strId.trim
+          parameterSeq { params =>
+            val parameters = params.toMap
+            val maybeStart = parameters.get("start")
+            val maybeEnd = parameters.get("end")
+
             get {
-              val response = albumQueries.findById(albumId).asJson
+              val response = albumQueries.findAll().asJson
               complete(ToResponseMarshallable(response))
-            } ~
-              delete {
-                val response = albumQueries.delete(albumId).asJson
+            }
+          } ~
+          pathEnd {
+            post {
+              entity(as[NewAlbum]) { newAlbum =>
+                val response = albumQueries.create(newAlbum).asJson
                 complete(ToResponseMarshallable(response))
+              }
+            } ~
+              put {
+                entity(as[Album]) { album =>
+                  albumQueries.update(album) match {
+                    case Some(response) => complete(ToResponseMarshallable(response.asJson))
+                    case None           => complete(NotFound)
+                    case _              => complete(InternalServerError)
+                  }
+                }
               }
           }
       } ~ SwaggerRoute.getSwaggerRoute("swagger_band.yaml")

@@ -1,7 +1,7 @@
 openapi: '3.0.1'
 info:
   title: Bands API
-  version: "0.0.1"
+  version: "0.0.2"
 
 servers:
   - url: '{protocol}://localhost:9000'
@@ -74,6 +74,8 @@ paths:
 
   /persons:
     get:
+      parameters:
+      - $ref: '#/components/parameters/PersonName'
       tags:
       - Persons
       summary: Get a list of all the persons
@@ -226,6 +228,9 @@ paths:
 
   /albums:
     get:
+      parameters:
+      - $ref: '#/components/parameters/LowerBound'
+      - $ref: '#/components/parameters/UpperBound'
       tags:
       - Albums
       summary: Get a list of all the albums
@@ -284,7 +289,7 @@ components:
         released:
           description: Date when the album was first released (yyyy-MM-dd)
           type: string
-          format: full-date
+          format: date
       required:
       - title
 
@@ -297,21 +302,17 @@ components:
           description: Name of the band
           type: string
           example: Metallica
-        aka:
-          description: Alternative names of the band
-          type: string
-          example: The Four Horsemen
         country:
           type: string
           description: Country of origin
         formed:
-          description: Date when the band was formed (yyyy-MM-dd)
+          description: Year when the band was formed
           type: string
-          format: full-date
+          format: full-year
         disbanded:
-          description: Date when the band was disbanded (yyyy-MM-dd)
+          description: Year when the band was disbanded
           type: string
-          format: full-date
+          format: full-year
       required:
       - name
 
@@ -346,17 +347,18 @@ components:
       type: object
       properties:
         instruments:
-          type: string
           description: List of instruments played by the member in the band
-          example: vocals, guitar, keyboards
+          type: array
+          items:
+            type: string
         start:
           type: string
-          format: full-date
-          description: Date when the member started playing in the band
+          format: full-year
+          description: Year when the member started playing in the band
         end:
           type: string
-          format: full-date
-          description: Date when the member stopped playing in the band
+          format: full-year
+          description: Year when the member stopped playing in the band
 
     uuid:
       description: Unique identifier
@@ -387,3 +389,33 @@ components:
       required: true
       schema:
         $ref: '#/components/schemas/uuid'
+
+    PersonName:
+      name: full-name
+      in: query
+      description: Name of the person
+      schema:
+        type: string
+
+    BandName:
+      name: name
+      in: query
+      description: Name of the band
+      schema:
+        type: string
+
+    LowerBound:
+      name: start
+      in: query
+      description: Minimum year to include in search
+      schema:
+        type: string
+        format: full-year
+
+    UpperBound:
+      name: end
+      in: query
+      description: Maximum year to include in search
+      schema:
+        type: string
+        format: full-year

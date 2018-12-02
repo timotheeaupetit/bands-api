@@ -12,18 +12,13 @@ class PlayedInQueries(implicit session: Session) {
          MERGE (p)-[r:PLAYED_IN {instruments: $instruments, start: $start, end: $end}]->(b)
       """.stripMargin
 
-    val params = parameters(
-      "band_id",
-      band.uuid.getOrElse("null"),
-      "person_id",
-      person.uuid.getOrElse("null"),
-      "instruments",
-      playedIn.instruments.getOrElse("null"),
-      "start",
-      playedIn.start.getOrElse("null"),
-      "end",
-      playedIn.end.getOrElse("null")
-    )
+    val instruments = playedIn.instruments.mkString(",")
+
+    val params = parameters("band_id", band.uuid.toString,
+                            "person_id", person.uuid.toString,
+                            "instruments", instruments,
+                            "start", playedIn.start.getOrElse("null").toString,
+                            "end", playedIn.end.getOrElse("null").toString)
 
     session.run(LINK, params)
   }
