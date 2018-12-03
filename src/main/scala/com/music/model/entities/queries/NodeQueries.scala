@@ -2,7 +2,7 @@ package com.music.model.entities.queries
 
 import java.util.UUID
 
-import org.neo4j.driver.v1.{Record, Value}
+import org.neo4j.driver.v1.Record
 
 abstract class NodeQueries[N, T] {
 
@@ -20,7 +20,4 @@ abstract class NodeQueries[N, T] {
 
   protected def buildFrom(record: Record): Option[T]
 
-  protected def setParams(t: T): Value
-
-  protected def setIdParam(uuid: UUID): Value
 }
