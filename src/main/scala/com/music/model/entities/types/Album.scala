@@ -5,8 +5,6 @@ import java.util.UUID
 case class Album(uuid: UUID, title: String, releaseDate: Option[Int])
 
 object Album {
-  def apply(uuid: UUID, title: String, releaseDate: Option[Int]): Album = new Album(uuid, title, releaseDate)
-
   def apply(newAlbum: NewAlbum): Album = new Album(uuid = UUID.randomUUID(),
                                                    title = newAlbum.title,
                                                    releaseDate = newAlbum.releaseDate)

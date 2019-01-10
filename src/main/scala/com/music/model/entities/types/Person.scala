@@ -12,13 +12,6 @@ case class Person(uuid: UUID,
                   born: Option[String])
 
 object Person {
-  def apply(uuid: UUID,
-            fullName: String,
-            firstName: Option[String],
-            lastName: Option[String],
-            aka: Option[String],
-            born: Option[String]): Person = new Person(uuid, fullName, firstName, lastName, aka, born)
-
   def apply(newPerson: NewPerson): Person = new Person(uuid = UUID.randomUUID(),
                                                        fullName = newPerson.full_name,
                                                        firstName = newPerson.first_name,

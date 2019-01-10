@@ -11,12 +11,6 @@ case class Band(uuid: UUID,
                 disbanded: Option[Int])
 
 object Band {
-  def apply(uuid: UUID,
-            name: String,
-            country: Option[String],
-            formed: Option[Int],
-            disbanded: Option[Int]): Band = new Band(uuid, name, country, formed, disbanded)
-
   def apply(newBand: NewBand): Band = new Band(uuid = UUID.randomUUID(),
                                                name = newBand.name,
                                                country = newBand.country,
