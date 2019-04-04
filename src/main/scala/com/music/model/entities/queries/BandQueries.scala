@@ -3,13 +3,18 @@ package com.music.model.entities.queries
 import java.util.UUID
 
 import com.music.model.entities.types.{Band, NewBand}
+import com.music.repository.Neo4jSession
+import com.music.utils.Neo4jManager
+import com.music.utils.ProjectConfiguration.ProjectConfig
 import org.neo4j.driver.v1.Values.parameters
 import org.neo4j.driver.v1.{Record, Session, Value}
 
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
 
-class BandQueries(implicit session: Session) extends NodeQueries[NewBand, Band] {
+class BandQueries(projectConfig: ProjectConfig) extends NodeQueries[NewBand, Band] with Neo4jSession {
+
+  override val session: Session = new Neo4jManager(projectConfig.neo4jConfig).session
 
   final override def create(newBand: NewBand): Option[Band] = {
     val band = Band(newBand)
@@ -112,4 +117,6 @@ object BandQueries {
                                                       "formed", band.formed.getOrElse("null").toString,
                                                       "disbanded", band.disbanded.getOrElse("null").toString,
                                                       "country", band.country.getOrElse("null"))
+
+  def apply(nodeQueries: NodeQueries[NewBand, Band], config: ProjectConfig): BandQueries = new BandQueries(config)
 }

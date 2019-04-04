@@ -22,7 +22,7 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
   implicit val neo4jSession: Session = neo4jManager.session
 
   private val personQueries = new PersonQueries()
-  private val bandQueries = new BandQueries()
+  private val bandQueries = new BandQueries(projectConfig)
   private val albumQueries = new AlbumQueries()
 
   private val playedInQueries = new PlayedInQueries()

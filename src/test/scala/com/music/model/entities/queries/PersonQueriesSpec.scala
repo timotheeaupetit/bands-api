@@ -1,17 +1,36 @@
 package com.music.model.entities.queries
 
-import akka.http.scaladsl.testkit.Specs2RouteTest
+import java.util.UUID
+
+import com.music.model.entities.types.Person
 import org.specs2.Specification
 import org.specs2.matcher.MatchResult
+import org.specs2.mock.Mockito
 import org.specs2.specification.core.SpecStructure
 
-class PersonQueriesSpec extends Specification with Specs2RouteTest {
+class PersonQueriesSpec extends Specification with Mockito {
 
   def is: SpecStructure =
     s2"""
-        | Sample $findExisting
+        PersonQueries should act like this:
+        | Return a person ${c().findExisting}
       """.stripMargin
 
-  private def findExisting: MatchResult[Boolean] = true must beEqualTo(true)
+  case class c() {
+    val m: PersonQueries = mock[PersonQueries]
+
+    def findExisting: MatchResult[Any] = {
+      val uuid = UUID.randomUUID()
+      val person = new Person(uuid,
+                              fullName = "John Smith",
+                              firstName = Some("John"),
+                              lastName = Some("Smith"),
+                              aka = None,
+                              born = None)
+
+      m.findById(uuid) returns Some(person)
+      m.findById(uuid).map(_.fullName) must beSome("John Smith")
+    }
+  }
 
 }
