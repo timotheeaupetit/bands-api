@@ -1,10 +1,10 @@
 package com.music.utils
 
-import com.music.utils.ProjectConfiguration.Neo4jConfig
-import org.neo4j.driver.v1._
+import com.music.utils.ProjectConfiguration.Neo4jAuraConfig
+import org.neo4j.driver.v1.{AuthTokens, Driver, GraphDatabase, Session}
 
-class Neo4jManager(configuration: Neo4jConfig) {
-  private val uri = s"bolt://${configuration.host}:${configuration.port}"
+class Neo4jAuraManager(configuration: Neo4jAuraConfig) {
+  private val uri = s"neo4j+s://${configuration.host}"
   private val username = configuration.user.getOrElse("")
   private val password = configuration.password.getOrElse("")
 

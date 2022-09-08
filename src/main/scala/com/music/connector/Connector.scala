@@ -9,7 +9,7 @@ import com.music.model.relationships.queries.PlayedInQueries
 import com.music.model.relationships.types.PlayedIn
 import com.music.model.{BandPage, BandPageQueries}
 import com.music.utils.ProjectConfiguration.ProjectConfig
-import com.music.utils.{Neo4jManager, SwaggerRoute}
+import com.music.utils.{Neo4jAuraManager, SwaggerRoute}
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import io.circe.generic.auto._
 import io.circe.syntax._
@@ -17,9 +17,9 @@ import org.neo4j.driver.v1.{AccessMode, Session}
 
 class Connector(projectConfig: ProjectConfig) extends HttpApp {
 
-  private val neo4jManager = new Neo4jManager(projectConfig.neo4jConfig)
+  private val neo4jAuraManager = new Neo4jAuraManager(projectConfig.neo4jAuraConfig)
 
-  implicit val neo4jSession: Session = neo4jManager.session
+  implicit val neo4jSession: Session = neo4jAuraManager.session
 
   private val personQueries = new PersonQueries()
   private val bandQueries = new BandQueries()
@@ -187,7 +187,7 @@ class Connector(projectConfig: ProjectConfig) extends HttpApp {
       path("band-page") {
         post {
           entity(as[BandPage]) { bandPage =>
-            val session = neo4jManager.driver.session(AccessMode.WRITE)
+            val session = neo4jAuraManager.driver.session(AccessMode.WRITE)
             val bandPageQueries = new BandPageQueries(session)
 
             bandPageQueries.save(bandPage)

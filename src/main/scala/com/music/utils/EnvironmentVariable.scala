@@ -113,21 +113,19 @@ trait EnvironmentVariables {
   case class ParsingError(environmentVariable: EnvironmentVariable, throwable: Throwable) extends ConfigError
 }
 
-trait Neo4jConfiguration {
-  case object NEO4J_DB extends EnvironmentVariable("NEO4J_DB")
-  case object NEO4J_HOST extends EnvironmentVariable("NEO4J_HOST")
-  case object NEO4J_PORT extends EnvironmentVariable("NEO4J_PORT")
-  case object NEO4J_USER extends EnvironmentVariable("NEO4J_USER")
-  case object NEO4J_PASSWORD extends EnvironmentVariable("NEO4J_PASSWORD")
+trait Neo4jAuraConfiguration {
+  case object NEO4J_AURA_DB extends EnvironmentVariable("NEO4J_AURA_DB")
+  case object NEO4J_AURA_HOST extends EnvironmentVariable("NEO4J_AURA_HOST")
+  case object NEO4J_AURA_USER extends EnvironmentVariable("NEO4J_AURA_USER")
+  case object NEO4J_AURA_PASSWORD extends EnvironmentVariable("NEO4J_AURA_PASSWORD")
 
-  case class Neo4jConfig(db: String, host: String, port: Int, user: Option[String], password: Option[String])
+  case class Neo4jAuraConfig(db: String, host: String, user: Option[String], password: Option[String])
 
-  def fNeo4jConfig: ValidationResult[Neo4jConfig] = {
-    (require[String](NEO4J_DB),
-      require[String](NEO4J_HOST),
-      require[Int](NEO4J_PORT),
-      option[String](NEO4J_USER),
-      option[String](NEO4J_PASSWORD)).mapN(Neo4jConfig)
+  def fNeo4jAuraConfig: ValidationResult[Neo4jAuraConfig] = {
+    (require[String](NEO4J_AURA_DB),
+      require[String](NEO4J_AURA_HOST),
+      option[String](NEO4J_AURA_USER),
+      option[String](NEO4J_AURA_PASSWORD)).mapN(Neo4jAuraConfig)
   }
 }
 
@@ -147,9 +145,9 @@ trait ApplicationConfiguration {
   }
 }
 
-trait ProjectConfiguration extends ApplicationConfiguration with Neo4jConfiguration {
+trait ProjectConfiguration extends ApplicationConfiguration with Neo4jAuraConfiguration {
 
-  case class ProjectConfig(appConfig: AppConfig, neo4jConfig: Neo4jConfig)
+  case class ProjectConfig(appConfig: AppConfig, neo4jAuraConfig: Neo4jAuraConfig)
 
   def projectConfiguration(): ValidationResult[ProjectConfig] = {
     projectConfiguration(FileSystems.getDefault)
@@ -162,7 +160,7 @@ trait ProjectConfiguration extends ApplicationConfiguration with Neo4jConfigurat
       }
     }
 
-    (fApplicationConfig, fNeo4jConfig).mapN(ProjectConfig)
+    (fApplicationConfig, fNeo4jAuraConfig).mapN(ProjectConfig)
   }
 }
 
