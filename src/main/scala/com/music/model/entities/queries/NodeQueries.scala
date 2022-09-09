@@ -2,7 +2,7 @@ package com.music.model.entities.queries
 
 import java.util.UUID
 
-import org.neo4j.driver.v1.Record
+import org.neo4j.driver.Record
 
 abstract class NodeQueries[N, T] {
 

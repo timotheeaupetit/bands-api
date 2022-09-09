@@ -20,7 +20,7 @@ lazy val root = (project in file("."))
     "de.heikoseeberger" %% "akka-http-circe" % "1.18.0",
     "net.ruippeixotog" % "scala-scraper_2.12" % "2.1.0",
     "org.typelevel" %% "cats-core" % "1.4.0",
-    "org.neo4j.driver" % "neo4j-java-driver" % "1.6.1",
+    "org.neo4j.driver" % "neo4j-java-driver" % "4.1.0",
     "org.webjars" % "swagger-ui" % "3.9.2",
     "org.webjars" % "webjars-locator" % "0.32-1",
     "com.typesafe.akka" %% "akka-http-testkit" % akkaHttpVersion % Test

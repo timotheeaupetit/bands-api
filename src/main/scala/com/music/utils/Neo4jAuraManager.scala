@@ -1,7 +1,7 @@
 package com.music.utils
 
 import com.music.utils.ProjectConfiguration.Neo4jAuraConfig
-import org.neo4j.driver.v1.{AuthTokens, Driver, GraphDatabase, Session}
+import org.neo4j.driver._
 
 class Neo4jAuraManager(configuration: Neo4jAuraConfig) {
   private val uri = s"neo4j+s://${configuration.host}"

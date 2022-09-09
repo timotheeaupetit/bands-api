@@ -1,11 +1,10 @@
 package com.music.model.entities.queries
 
-import java.util.UUID
-
 import com.music.model.entities.types.{Band, NewBand}
-import org.neo4j.driver.v1.Values.parameters
-import org.neo4j.driver.v1.{Record, Session, Value}
+import org.neo4j.driver.Values.parameters
+import org.neo4j.driver.{Record, Session, Value}
 
+import java.util.UUID
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Success, Try}
 

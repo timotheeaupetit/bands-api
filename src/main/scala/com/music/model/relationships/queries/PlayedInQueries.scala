@@ -1,11 +1,11 @@
 package com.music.model.relationships.queries
 
-import java.util.UUID
-
 import com.music.model.entities.types.{Band, Person}
 import com.music.model.relationships.types.PlayedIn
-import org.neo4j.driver.v1.Values.parameters
-import org.neo4j.driver.v1.{Session, Value}
+import org.neo4j.driver.Values.parameters
+import org.neo4j.driver.{Session, Value}
+
+import java.util.UUID
 
 class PlayedInQueries(implicit session: Session) {
   def link(person: Person, playedIn: PlayedIn, band: Band): Unit = {
